@@ -1,0 +1,236 @@
+.sidebar {
+  width: 280px;
+  background: var(--white);
+  border-right: 1px solid var(--gray-200);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: all var(--transition-base);
+  z-index: 1001;
+}
+
+.sidebarCollapsed {
+  width: 80px;
+}
+
+.brand {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.brandCollapsed {
+  padding: 1rem 0;
+  flex-direction: column;
+  gap: 1.25rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.brandInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.closeBtn {
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--gray-400);
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  color: var(--primary-red);
+}
+
+.brandIcon {
+  font-size: 2rem;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandText strong {
+  font-family: 'Poppins', sans-serif;
+  color: var(--primary-green);
+  font-size: 1.125rem;
+  line-height: 1.2;
+}
+
+.brandText span {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nav {
+  flex: 1;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-lg);
+  color: var(--gray-600);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.link:hover {
+  background: var(--gray-100);
+  color: var(--primary-green);
+}
+
+.link.active {
+  background: rgba(0, 107, 63, 0.08);
+  color: var(--primary-green);
+}
+
+.icon {
+  font-size: 1.25rem;
+  width: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.footer {
+  padding: 1.5rem 1rem;
+  border-top: 1px solid var(--gray-100);
+  background: var(--gray-50);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.userDetails strong {
+  font-size: 0.875rem;
+  color: var(--gray-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userDetails span {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.logoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  color: var(--primary-red);
+  font-weight: 600;
+  background: var(--white);
+  border: 1px solid rgba(206, 17, 38, 0.1);
+  transition: all var(--transition-fast);
+}
+
+.logoutBtn:hover {
+  background: rgba(206, 17, 38, 0.05);
+  border-color: var(--primary-red);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1024px) {
+  .closeBtn {
+    display: block;
+  }
+}
+
+/* Collapsed Sidebar Styles */
+.toggleBtn {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-500);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.toggleBtn:hover {
+  background: var(--primary-green);
+  color: white;
+  border-color: var(--primary-green);
+}
+
+.brandIconCollapsed {
+  font-size: 1.75rem;
+  margin: 0 auto;
+}
+
+.linkCollapsed {
+  justify-content: center;
+  padding: 0.875rem 0;
+}
+
+.linkCollapsed .icon {
+  margin: 0;
+}
+
+.logoutBtnCollapsed {
+  justify-content: center;
+  padding: 0.75rem 0;
+}
+
+.logoutBtnCollapsed .logoutIcon {
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .toggleBtn {
+    display: none;
+  }
+}

@@ -1,0 +1,62 @@
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-200, #e5e7eb);
+  gap: 1rem;
+}
+
+.prevBtn {
+  padding: 0.875rem 1.75rem;
+  background: white;
+  border: 1px solid var(--gray-300, #d1d5db);
+  border-radius: var(--radius-md, 0.375rem);
+  color: var(--gray-700, #374151);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.prevBtn:hover:not(:disabled) {
+  background: var(--gray-50, #f9fafb);
+  border-color: var(--gray-400, #9ca3af);
+}
+
+.nextBtn, .submitBtn {
+  padding: 0.875rem 2rem;
+  background: var(--primary-color, #1a237e);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md, 0.375rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nextBtn:hover:not(:disabled) {
+  background: var(--primary-dark, #0d124d);
+  transform: translateY(-1px);
+}
+
+.submitBtn {
+  background: #059669; /* Success Green */
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #047857;
+  transform: translateY(-1px);
+}
+
+.prevBtn:disabled, .nextBtn:disabled, .submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

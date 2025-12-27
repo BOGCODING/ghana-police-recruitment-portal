@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: gps-backend
+    env: node
+    plan: free
+    repo: https://github.com/YOUR_GITHUB_USERNAME/ghana-police-recruitment-portal
+    rootDir: apps/backend
+    buildCommand: pnpm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generate: true
+      - key: ADMIN_SECRET
+        generate: true
+      - key: CORS_ORIGIN
+        sync: false

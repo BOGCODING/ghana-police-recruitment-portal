@@ -1,0 +1,20 @@
+.container {
+  padding: 2rem;
+  text-align: center;
+  color: #DC2626;
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 0.5rem;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.container button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #DC2626;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}

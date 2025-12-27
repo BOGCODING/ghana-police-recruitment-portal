@@ -1,0 +1,192 @@
+.summaryCard {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.successHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.successIcon {
+  font-size: 4rem;
+  color: var(--primary-green);
+  margin-bottom: 1rem;
+}
+
+.successHeader h2 {
+  font-size: 2rem;
+  color: var(--gray-900);
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.downloadBtn, .printBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.downloadBtn {
+  background: var(--primary-green);
+  color: white;
+  border: none;
+}
+
+.downloadBtn:hover:not(:disabled) {
+  background: #004d2e;
+  transform: translateY(-2px);
+}
+
+.printBtn {
+  background: white;
+  color: var(--gray-700);
+  border: 2px solid var(--gray-200);
+}
+
+.printBtn:hover {
+  background: var(--gray-50);
+}
+
+.printableArea {
+  background: white;
+  padding: 3rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.gpsHeader {
+  text-align: center;
+  border-bottom: 2px solid var(--primary-green);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.gpsLogoPlaceholder {
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--primary-green);
+  margin-bottom: 0.5rem;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 2rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h4 {
+  color: var(--primary-green);
+  border-bottom: 1px solid var(--gray-100);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+}
+
+.infoRow {
+  display: flex;
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.label {
+  width: 150px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.value {
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
+.photoBox {
+  width: 100px;
+  height: 100px;
+  border: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.photoBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qrBox {
+  width: 120px;
+  text-align: center;
+}
+
+.qrBox img {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.qrBox span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.declaration {
+  margin-top: 3rem;
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.signatureRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4rem;
+}
+
+.signatureBox, .dateBox {
+  width: 250px;
+  text-align: center;
+}
+
+.line {
+  border-bottom: 1px solid var(--gray-400);
+  margin-bottom: 0.5rem;
+}
+
+.signatureBox span, .dateBox span {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+@media print {
+  .actions, .backBtn {
+    display: none;
+  }
+  .summaryCard {
+    padding: 0;
+  }
+  .printableArea {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+}

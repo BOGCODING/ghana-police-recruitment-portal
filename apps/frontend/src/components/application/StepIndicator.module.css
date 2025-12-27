@@ -1,0 +1,99 @@
+.stepIndicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 1;
+  flex: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.step:hover .dot {
+  transform: scale(1.1);
+}
+
+.dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  border: 2px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-400);
+  transition: all 0.3s ease;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gray-400);
+  text-align: center;
+}
+
+/* Status: Current */
+.step.current .dot {
+  background: var(--primary-green);
+  border-color: var(--primary-green);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(0, 107, 63, 0.1);
+}
+
+.step.current .label {
+  color: var(--primary-green);
+  font-weight: 600;
+}
+
+/* Status: Complete */
+.step.complete .dot {
+  background: var(--primary-green);
+  border-color: var(--primary-green);
+  color: white;
+}
+
+.step.complete .label {
+  color: var(--gray-600);
+}
+
+/* Connecting Line */
+.line {
+  position: absolute;
+  top: 31px; /* Center of 32px dot (16px) + padding (1.5rem = 24px)? No, top calculation needs to be precise relative to container */
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--gray-100);
+  z-index: 0;
+}
+
+/* Progress on Line */
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--primary-green);
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .label {
+    display: none;
+  }
+}

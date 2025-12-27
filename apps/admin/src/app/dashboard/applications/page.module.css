@@ -1,0 +1,840 @@
+.container {
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.header h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.totalCount {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exportBtn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+
+/* Filters Bar */
+.filtersBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  background: white;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.searchBox {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  transition: all 0.2s ease;
+}
+
+.searchBox:focus-within {
+  border-color: var(--primary-green);
+  background: white;
+}
+
+.searchBox input {
+  background: none;
+  border: none;
+  width: 100%;
+  outline: none;
+  font-size: 0.9375rem;
+}
+
+.filtersBar select {
+  padding: 0.625rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  background: white;
+  font-size: 0.875rem;
+  min-width: 150px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filtersBar select:hover {
+  border-color: var(--gray-300);
+}
+
+.dateFilter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.dateFilter input {
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  outline: none;
+  width: 130px;
+}
+
+.dateFilter span {
+  color: var(--gray-400);
+}
+
+.moreFilters {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.smallInput {
+  width: 90px !important;
+  min-width: 90px !important;
+  padding: 0.625rem 0.5rem !important;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.smallInput:focus {
+  border-color: var(--primary-green);
+  background: white;
+}
+
+
+/* Bulk Action Toolbar */
+.bulkToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, var(--accent-navy) 0%, #003366 100%);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bulkInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-weight: 600;
+}
+
+.bulkActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bulkApproveBtn, .bulkRejectBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.bulkApproveBtn {
+  background: #10B981;
+  color: white;
+}
+
+.bulkApproveBtn:hover {
+  background: #059669;
+}
+
+.bulkRejectBtn {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.bulkRejectBtn:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.bulkForm {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bulkSelect, .bulkInput {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.875rem;
+}
+
+.bulkSelect option {
+  color: var(--gray-900);
+  background: white;
+}
+
+.bulkInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.confirmApprove, .confirmReject {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+}
+
+.confirmApprove {
+  background: #10B981;
+  color: white;
+}
+
+.confirmReject {
+  background: #EF4444;
+  color: white;
+}
+
+.confirmApprove:disabled, .confirmReject:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.clearSelection {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+}
+
+.clearSelection:hover {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Table */
+.tableCard {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 1rem;
+  background: var(--gray-50);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.selectedRow {
+  background: rgba(0, 107, 63, 0.05) !important;
+}
+
+.checkboxCol {
+  width: 48px;
+  text-align: center;
+}
+
+.selectAllBtn, .checkboxBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-400);
+  font-size: 1.125rem;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.selectAllBtn:hover, .checkboxBtn:hover {
+  color: var(--primary-green);
+}
+
+.selectedRow .checkboxBtn {
+  color: var(--primary-green);
+}
+
+/* Applicant Cell with Photo */
+.applicantCell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.photoThumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--gray-100);
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noPhoto {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-green) 0%, #004D2C 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.nameInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.fullName {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.email {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.appId {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-weight: 700;
+  color: var(--primary-green);
+  font-size: 0.8125rem;
+}
+
+.categoryBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: var(--gray-100);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+/* Status Badges */
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.submitted { 
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); 
+  color: #4338ca; 
+}
+
+.approved { 
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); 
+  color: #047857; 
+}
+
+.rejected { 
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
+  color: #b91c1c; 
+}
+
+.draft { 
+  background: var(--gray-100); 
+  color: var(--gray-600); 
+}
+
+.underReview { 
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+  color: #92400e; 
+}
+
+.docsRequired { 
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); 
+  color: #9a3412; 
+}
+
+.shortlisted { 
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); 
+  color: #1e40af; 
+}
+
+/* Actions */
+.actions {
+  white-space: nowrap;
+}
+
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--gray-100);
+  color: var(--gray-700);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.viewBtn:hover {
+  background: var(--primary-green);
+  color: white;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  color: var(--gray-500);
+  font-size: 0.875rem;
+}
+
+.pageBtns {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageNum {
+  padding: 0.5rem 1rem;
+  background: var(--gray-100);
+  border-radius: 6px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.pageBtns button {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.pageBtns button:hover:not(:disabled) {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+
+.pageBtns button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading & Empty States */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  color: var(--gray-500);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary-green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty {
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--gray-500);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .filtersBar {
+    flex-wrap: wrap;
+  }
+  
+  .dateFilter {
+    flex: 1;
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .bulkToolbar {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  
+  .bulkActions {
+    flex-wrap: wrap;
+  }
+  
+  .bulkForm {
+    flex-wrap: wrap;
+  }
+}
+
+/* Row Action Buttons */
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.actionButtons button, .actionButtons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.rowApproveBtn {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+}
+
+.rowApproveBtn:hover {
+  background: #10B981;
+  color: white;
+}
+
+.rowRejectBtn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+}
+
+.rowRejectBtn:hover {
+  background: #EF4444;
+  color: white;
+}
+
+.rowRequestBtn {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3B82F6;
+}
+
+.rowRequestBtn:hover {
+  background: #3B82F6;
+  color: white;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: modalScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.modalHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.closeModal {
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  transition: color 0.2s ease;
+}
+
+.closeModal:hover {
+  color: var(--gray-600);
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.appSummary {
+  display: flex;
+  flex-direction: column;
+  background: var(--gray-50);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--gray-100);
+}
+
+.appSummary strong {
+  font-size: 1rem;
+  color: var(--gray-900);
+}
+
+.appSummary span {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.formGroup select, .formGroup textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  background: white;
+  font-size: 0.9375rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.formGroup select:focus, .formGroup textarea:focus {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 3px rgba(0, 107, 63, 0.1);
+}
+
+.warningBox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #FFFBEB;
+  border: 1px solid #FEF3C7;
+  border-radius: 8px;
+  color: #92400E;
+  font-size: 0.875rem;
+}
+
+.warningBox svg {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.modalFooter {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--gray-100);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  background: var(--gray-50);
+  border-radius: 0 0 12px 12px;
+}
+
+.modalCancelBtn {
+  padding: 0.625rem 1.25rem;
+  background: white;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-700);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modalConfirmBtn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+.modalConfirmBtn.approve { background: #10B981; }
+.modalConfirmBtn.approve:hover { background: #059669; }
+
+.modalConfirmBtn.reject { background: #EF4444; }
+.modalConfirmBtn.reject:hover { background: #DC2626; }
+
+.modalConfirmBtn.request { background: #3B82F6; }
+.modalConfirmBtn.request:hover { background: #2563EB; }
+
+.modalConfirmBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

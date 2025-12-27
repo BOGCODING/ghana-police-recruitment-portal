@@ -1,0 +1,182 @@
+.pageContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 5rem;
+  position: relative;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 900;
+  color: var(--primary-color, #1a237e);
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: var(--gray-600);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+  margin-bottom: 6rem;
+}
+
+.card {
+  background: white;
+  padding: 3rem;
+  border-radius: var(--radius-xl, 1rem);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-100);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+}
+
+.cardIcon {
+  width: 60px;
+  height: 60px;
+  background: var(--primary-50, #f0f2ff);
+  color: var(--primary-color);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.card h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--gray-900);
+}
+
+.card p {
+  color: var(--gray-600);
+  line-height: 1.7;
+}
+
+.historySection {
+  background: white;
+  padding: 4rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 6rem;
+}
+
+.sectionTitle {
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.historyContent {
+  color: var(--gray-700);
+  line-height: 1.8;
+  column-count: 1;
+  gap: 3rem;
+}
+
+.historyContent p {
+  margin-bottom: 1.5rem;
+}
+
+.valuesSection {
+  text-align: center;
+  margin-bottom: 6rem;
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.valueItem {
+  padding: 2rem;
+}
+
+.valueIcon {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.valueTitle {
+  font-weight: 800;
+  font-size: 1.125rem;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.ctaSection {
+  background: var(--primary-color);
+  color: white;
+  padding: 5rem 3rem;
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.ctaSection h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.ctaSection p {
+  font-size: 1.125rem;
+  margin-bottom: 2.5rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+.ctaButton {
+  display: inline-block;
+  padding: 1.25rem 3rem;
+  background: var(--accent-color, #ffd700);
+  color: var(--primary-dark, #0d144d);
+  font-weight: 800;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.ctaButton:hover {
+  transform: scale(1.05);
+  background: #ffea00;
+}
+
+@media (min-width: 1024px) {
+  .historyContent {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .historySection {
+    padding: 2rem;
+  }
+  .pageContainer {
+    padding: 3rem 1rem;
+  }
+}

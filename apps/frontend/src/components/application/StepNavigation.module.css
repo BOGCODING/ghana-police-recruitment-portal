@@ -1,0 +1,104 @@
+.nav {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 100px;
+}
+
+.nav h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+  margin-bottom: 1rem;
+}
+
+.steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stepItem {
+  position: relative;
+}
+
+.stepButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.stepButton:hover:not(:disabled) {
+  background: var(--gray-50);
+}
+
+.stepButton.current {
+  background: rgba(0, 107, 63, 0.1);
+}
+
+.stepButton.current .stepNumber {
+  background: var(--primary-green);
+  color: white;
+}
+
+.stepButton.current .stepName {
+  color: var(--primary-green);
+  font-weight: 600;
+}
+
+.stepButton.complete .stepNumber {
+  background: var(--primary-green);
+  color: white;
+}
+
+.stepButton.locked {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.stepNumber {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-200);
+  color: var(--gray-600);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.stepName {
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+@media (max-width: 900px) {
+  .steps {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .stepButton {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .stepName {
+    display: none;
+  }
+}

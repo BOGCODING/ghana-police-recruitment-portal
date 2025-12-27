@@ -1,0 +1,238 @@
+.printContainer {
+  max-width: 210mm; /* A4 width */
+  margin: 0 auto;
+  padding: 10mm;
+  background: white;
+  color: black;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 5mm;
+  border-bottom: 2px solid black;
+  padding-bottom: 5mm;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo {
+  filter: grayscale(100%); /* Print friendly */
+}
+
+.titleSection h1 {
+  font-size: 18pt;
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.titleSection h2 {
+  font-size: 14pt;
+  margin: 5px 0 0 0;
+  font-weight: normal;
+}
+
+.metaSection {
+  text-align: right;
+  font-size: 10pt;
+}
+
+.metaItem {
+  margin-bottom: 5px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 5mm;
+}
+
+.profileSection {
+  display: flex;
+  gap: 10mm;
+  margin-bottom: 5mm;
+}
+
+.photoContainer {
+  width: 40mm;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3mm;
+}
+
+.passportPhoto {
+  width: 40mm;
+  height: 40mm;
+  object-fit: cover;
+  border: 1px solid black;
+}
+
+.noPhoto {
+  width: 40mm;
+  height: 40mm;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+}
+
+.statusBox {
+  border: 1px solid black;
+  padding: 2mm;
+  text-align: center;
+}
+
+.statusLabel {
+  display: block;
+  font-size: 8pt;
+  text-transform: uppercase;
+}
+
+.statusValue {
+  display: block;
+  font-weight: bold;
+  font-size: 10pt;
+}
+
+.personalDetails {
+  flex: 1;
+}
+
+.printContainer h3 {
+  font-size: 12pt;
+  background: #f0f0f0;
+  padding: 5px 10px;
+  margin: 0 0 3mm 0;
+  border-bottom: 1px solid black;
+  text-transform: uppercase;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+  margin-bottom: 5mm;
+}
+
+.grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3mm;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+}
+
+.item label {
+  font-size: 8pt;
+  color: #555;
+  text-transform: uppercase;
+}
+
+.item span {
+  font-size: 10pt;
+  font-weight: bold;
+  border-bottom: 1px dotted #ccc;
+  padding-bottom: 1px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5mm;
+  font-size: 10pt;
+}
+
+.table th {
+  text-align: left;
+  border-bottom: 1px solid black;
+  padding: 2mm;
+  font-weight: bold;
+}
+
+.table td {
+  border-bottom: 1px solid #ccc;
+  padding: 2mm;
+}
+
+.officialSection {
+  margin-top: 10mm;
+  page-break-inside: avoid;
+}
+
+.officialGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 5mm;
+}
+
+.officialBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10mm;
+}
+
+.officialBox label {
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+.signatureLine {
+  border-bottom: 1px solid black;
+  height: 1px;
+}
+
+.remarksLine {
+  border-bottom: 1px solid black;
+  height: 1px;
+  margin-top: 5mm;
+}
+
+.officialBox span {
+  font-size: 8pt;
+  text-align: center;
+  color: #666;
+}
+
+.footer {
+  margin-top: 10mm;
+  border-top: 1px solid black;
+  padding-top: 2mm;
+  text-align: center;
+  font-size: 8pt;
+  color: #666;
+}
+
+.loading, .error {
+  padding: 50px;
+  text-align: center;
+  font-size: 14pt;
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+    size: A4;
+  }
+  
+
+
+  .printContainer {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}

@@ -1,0 +1,55 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.widget {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon {
+  font-size: 2rem;
+  background-color: #EFF6FF;
+  padding: 0.75rem;
+  border-radius: 50%;
+}
+
+.content h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.content p {
+  color: #6B7280;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* Status variants */
+.warning { border-left: 4px solid #F59E0B; }
+.warning .icon { background-color: #FEF3C7; color: #F59E0B; }
+
+.active { border-left: 4px solid #3B82F6; }
+.active .icon { background-color: #EFF6FF; color: #3B82F6; }
+
+.completed, .approved { border-left: 4px solid #10B981; }
+.completed .icon, .approved .icon { background-color: #ECFDF5; color: #10B981; }
+
+.rejected { border-left: 4px solid #EF4444; }
+.rejected .icon { background-color: #FEF2F2; color: #EF4444; }
+
+.submitted { border-left: 4px solid #8B5CF6; }
+.submitted .icon { background-color: #F5F3FF; color: #8B5CF6; }
+
+.neutral { border-left: 4px solid #9CA3AF; }
+.neutral .icon { background-color: #F3F4F6; color: #6B7280; }

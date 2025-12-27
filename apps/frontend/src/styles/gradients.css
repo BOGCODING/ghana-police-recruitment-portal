@@ -1,0 +1,14 @@
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+}
+
+.bg-gradient-hero {
+  background: linear-gradient(to right, rgba(30, 58, 138, 0.9), rgba(30, 58, 138, 0.7));
+}
+
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(to right, var(--color-primary), var(--color-primary-light));
+}

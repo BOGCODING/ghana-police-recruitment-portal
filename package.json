@@ -1,0 +1,40 @@
+{
+  "name": "ghana-police-recruitment-portal",
+  "version": "1.0.0",
+  "description": "Ghana Police Service Recruitment Portal - Production-ready system for 50,000+ concurrent users",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm run --parallel dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:admin": "pnpm --filter admin dev",
+    "build": "pnpm run --parallel build",
+    "build:backend": "pnpm --filter backend build",
+    "build:frontend": "pnpm --filter frontend build",
+    "build:admin": "pnpm --filter admin build",
+    "start": "pnpm run --parallel start",
+    "lint": "pnpm run --parallel lint",
+    "test": "pnpm run --parallel test",
+    "migrate": "pnpm --filter backend migrate",
+    "seed": "pnpm --filter backend seed",
+    "clean": "pnpm run --parallel clean && rm -rf node_modules"
+  },
+  "keywords": [
+    "ghana-police",
+    "recruitment",
+    "portal",
+    "next.js",
+    "express",
+    "postgresql"
+  ],
+  "author": "Ghana Police Service",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "eslint-config-next": "14.0.4",
+    "next": "14.0.4"
+  }
+}

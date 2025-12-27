@@ -1,0 +1,542 @@
+.main {
+  min-height: 100vh;
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #001F3F; /* Fallback color */
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.heroImage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.heroImage img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0, 31, 63, 0.85), rgba(0, 31, 63, 0.4));
+  z-index: 2;
+}
+
+
+.heroContent {
+  position: relative;
+  z-index: 10;
+  max-width: 800px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  background: rgba(255, 215, 0, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #FFD700;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(4px);
+}
+
+.flag {
+  border-radius: 2px;
+}
+
+
+.heroTitle {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+}
+
+.highlight {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #0A0A0A;
+  font-weight: 700;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+
+
+.btnSecondary {
+  padding: 1rem 2rem;
+  background: transparent;
+  color: white;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.btnSecondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+.heroStats {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statNumber {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFD700;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Animations removed in favor of Framer Motion */
+
+/* Sections */
+.section {
+  padding: 5rem 0;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.sectionSubtitle {
+  text-align: center;
+  color: #6B7280;
+  margin-bottom: 3rem;
+}
+
+/* Categories Grid */
+.categoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.categoryCard {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #E5E7EB;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.categoryImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.categoryImg {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+
+
+.categoryIcon {
+  display: none;
+}
+
+
+.categoryName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.categoryDesc {
+  color: #6B7280;
+  font-size: 0.9rem;
+}
+
+.categoryArrow {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: #006B3F;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.categoryCard:hover .categoryArrow {
+  opacity: 1;
+  right: 1rem;
+}
+
+/* Track Status Section */
+.trackSection {
+  padding: 5rem 0;
+  background: #F3F4F6;
+}
+
+.trackCard {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.trackHeader {
+  margin-bottom: 2rem;
+}
+
+.trackForm {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.trackInput {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.trackInput:focus {
+  outline: none;
+  border-color: #FFD700;
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.1);
+}
+
+.trackBtn {
+  padding: 0 2rem;
+  background: #001F3F;
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.trackBtn:hover:not(:disabled) {
+  background: #003366;
+  transform: translateY(-2px);
+}
+
+.trackBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.trackError {
+  color: #DC2626;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.trackResult {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #E5E7EB;
+  text-align: left;
+}
+
+.resultHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.statusBadge {
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.statusBadge.submitted { background: #DBEAFE; color: #1E40AF; }
+.statusBadge.approved { background: #D1FAE5; color: #065F46; }
+.statusBadge.rejected { background: #FEE2E2; color: #991B1B; }
+.statusBadge.draft { background: #F3F4F6; color: #374151; }
+
+.resultDate {
+  color: #6B7280;
+  font-size: 0.9rem;
+}
+
+/* Banner Section */
+.bannerSection {
+  padding: 5rem 0;
+}
+
+.bannerWrapper {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.bannerImg {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.bannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0, 31, 63, 0.9), transparent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  color: white;
+}
+
+.bannerOverlay h3 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  max-width: 400px;
+}
+
+
+
+/* Process Section */
+.processSection {
+  background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+}
+
+.stepsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.step {
+  position: relative;
+  text-align: center;
+  max-width: 200px;
+}
+
+.stepNumber {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #006B3F 0%, #004D2C 100%);
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.stepTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.stepDesc {
+  color: #6B7280;
+  font-size: 0.875rem;
+}
+
+.stepConnector {
+  display: none;
+}
+
+/* CTA Section */
+.ctaSection {
+  background: linear-gradient(135deg, #006B3F 0%, #004D2C 100%);
+  padding: 5rem 0;
+  text-align: center;
+  color: white;
+}
+
+.ctaBadge {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.ctaTitle {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.ctaSubtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+}
+
+.ctaButton {
+  display: inline-block;
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #0A0A0A;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+}
+
+/* Footer */
+.footer {
+  background: #0A0A0A;
+  color: white;
+  padding: 3rem 0 1.5rem;
+}
+
+.footerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footerLogo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.footerBrand h3 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+
+.footerBrand p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+}
+
+.footerLinks {
+  display: flex;
+  gap: 2rem;
+}
+
+.footerLinks a {
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.3s ease;
+}
+
+.footerLinks a:hover {
+  color: #FFD700;
+}
+
+.footerBottom {
+  padding-top: 1.5rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .heroStats {
+    position: relative;
+    bottom: auto;
+    transform: none;
+    margin-top: 3rem;
+    gap: 2rem;
+  }
+  
+  .stepsContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .footerContent {
+    flex-direction: column;
+    text-align: center;
+  }
+}
