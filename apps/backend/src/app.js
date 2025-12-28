@@ -22,7 +22,8 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS
+// Enable pre-flight across-the-board
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 
 // Apply Global Middleware
