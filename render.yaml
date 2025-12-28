@@ -1,56 +1,74 @@
+# Render Blueprint Specification
+# This file defines the infrastructure for the Ghana Police Recruitment Portal.
+
 services:
-  # Backend API Service
+  # ---------------------------------------------------------------------------
+  # 1. Backend API Service (Express)
+  # ---------------------------------------------------------------------------
   - type: web
     name: gps-backend
     runtime: node
     plan: free
-    repo: https://github.com/BOGCODING/ghana-police-recruitment-portal
     rootDir: apps/backend
     buildCommand: npm install
     startCommand: node server.js
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 5000
       - key: DATABASE_URL
-        sync: false
+        sync: false # User will be prompted to enter this
       - key: REDIS_URL
-        sync: false
+        sync: false # User will be prompted to enter this (Upstash URL)
       - key: JWT_SECRET
-        sync: false
+        generateValue: true # Render will generate a random secret
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
       - key: ADMIN_SECRET
-        sync: false
+        generateValue: true
       - key: CORS_ORIGIN
-        sync: false
+        sync: false # Should be your frontend domain(s)
 
-  # Frontend Next.js Service
+  # ---------------------------------------------------------------------------
+  # 2. Frontend Applicant Portal (Next.js)
+  # ---------------------------------------------------------------------------
   - type: web
     name: gps-frontend
     runtime: node
     plan: free
-    repo: https://github.com/BOGCODING/ghana-police-recruitment-portal
     rootDir: apps/frontend
     buildCommand: npm install && npm run build
     startCommand: npm run start
+    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        sync: false
+        fromService:
+          name: gps-backend
+          type: web
+          property: host
       - key: NEXT_PUBLIC_WS_URL
-        sync: false
+        sync: false # Typically ws://version-of-backend-host
 
-  # Admin Next.js Service
+  # ---------------------------------------------------------------------------
+  # 3. Admin Dashboard (Next.js)
+  # ---------------------------------------------------------------------------
   - type: web
     name: gps-admin
     runtime: node
     plan: free
-    repo: https://github.com/BOGCODING/ghana-police-recruitment-portal
     rootDir: apps/admin
     buildCommand: npm install && npm run build
     startCommand: npm run start
+    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        sync: false
-
+        fromService:
+          name: gps-backend
+          type: web
+          property: host
