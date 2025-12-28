@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useApplication } from '@/contexts/ApplicationContext';
+import { api } from '@/utils/api';
 import styles from './FormStep.module.css';
 
 const REQUIRED_DOCUMENTS = [
@@ -23,7 +24,6 @@ export default function DocumentsForm() {
   const [uploading, setUploading] = useState({});
   const [errors, setErrors] = useState({});
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     if (formData.documents && Array.isArray(formData.documents)) {
@@ -35,9 +35,6 @@ export default function DocumentsForm() {
     }
   }, [formData.documents]);
 
-  const getToken = () => {
-    return document.cookie.split('; ').find(row => row.startsWith('accessToken='))?.split('=')[1];
-  };
 
   const uploadFile = async (file, documentType) => {
     setUploading(prev => ({ ...prev, [documentType]: true }));
@@ -48,19 +45,10 @@ export default function DocumentsForm() {
       formData.append('file', file);
       formData.append('documentType', documentType);
 
-      const res = await fetch(`${API_URL}/api/upload`, {
+      const data = await api('/api/upload', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${getToken()}` },
-        body: formData,
-        credentials: 'include'
+        body: formData
       });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Upload failed');
-      }
-
-      const data = await res.json();
       const uploadedDoc = data.data;
       
       // Normalize snake_case response to camelCase for consistent state

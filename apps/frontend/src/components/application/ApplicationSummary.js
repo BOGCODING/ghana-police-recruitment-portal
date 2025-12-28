@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { FiDownload, FiPrinter, FiCheckCircle } from 'react-icons/fi';
+import { api } from '@/utils/api';
 import styles from './ApplicationSummary.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function ApplicationSummary() {
   const [data, setData] = useState(null);
@@ -16,19 +16,10 @@ export default function ApplicationSummary() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('accessToken='))?.split('=')[1];
-        
-        const [summaryRes, qrRes] = await Promise.all([
-          fetch(`${API_URL}/api/applications/summary`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          fetch(`${API_URL}/api/applications/qr-code`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
+        const [summaryData, qrData] = await Promise.all([
+          api('/api/applications/summary'),
+          api('/api/applications/qr-code')
         ]);
-
-        const summaryData = await summaryRes.json();
-        const qrData = await qrRes.json();
 
         if (summaryData.success) setData(summaryData.data);
         if (qrData.success) setQrCode(qrData.data.qrCode);
@@ -45,9 +36,12 @@ export default function ApplicationSummary() {
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('accessToken='))?.split('=')[1];
+      const { API_URL } = api; // Or manually get the constructed URL
+      const token = localStorage.getItem('accessToken');
+      
       const res = await fetch(`${API_URL}/api/applications/download-pdf`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include'
       });
       
       const blob = await res.blob();
@@ -57,6 +51,7 @@ export default function ApplicationSummary() {
       a.download = `GPS-Application-${data.application.applicationId}.pdf`;
       document.body.appendChild(a);
       a.click();
+      a.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Download failed:', error);

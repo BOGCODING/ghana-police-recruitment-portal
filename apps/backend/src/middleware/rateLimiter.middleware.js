@@ -1,6 +1,6 @@
 const rateLimit = require('express-rate-limit');
 const RedisStore = require('rate-limit-redis');
-const { getRedis } = require('../config/redis');
+const { getRedis, isTcp } = require('../config/redis');
 const logger = require('../utils/logger');
 
 // Check if we're in development mode
@@ -10,8 +10,11 @@ const isDev = process.env.NODE_ENV !== 'production';
 const getRedisStore = () => {
   try {
     const redis = getRedis();
-    if (!redis) {
-      logger.warn('Redis not available, using memory store for rate limiting');
+    // ONLY use RedisStore if we have a real TCP connection
+    if (!redis || !isTcp) {
+      if (!isDev) {
+        logger.warn('TCP Redis not available for rate limiting, using memory store');
+      }
       return undefined; // Falls back to memory store
     }
     
@@ -25,23 +28,25 @@ const getRedisStore = () => {
   }
 };
 
-// General API rate limiter
+// General API rate limiter - relaxed for the SPA dashboard needs
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isDev ? 1000 : 100, // Relaxed in dev: 1000 vs 100 requests per 15 minutes
+  max: 2000, // 2000 requests per 15 minutes (approx 2 requests per second)
   message: {
     success: false,
-    message: 'Too many requests from this IP, please try again after 15 minutes'
+    message: 'Too many requests, please slow down'
   },
   standardHeaders: true,
   legacyHeaders: false,
   store: getRedisStore(),
   keyGenerator: (req) => {
     // Use user ID if authenticated, otherwise IP
-    return req.user?.id || req.admin?.id || req.ip;
+    // Note: This relies on Auth middleware being run BEFORE this if we want ID-based limiting
+    const key = req.user?.id || req.admin?.id || req.ip;
+    return key;
   },
   handler: (req, res, next, options) => {
-    logger.warn(`Rate limit exceeded: ${req.ip} - ${req.originalUrl}`);
+    logger.warn(`General Rate limit exceeded: ${req.ip} - ${req.originalUrl} - Agent: ${req.headers['user-agent']}`);
     res.status(options.statusCode).json(options.message);
   }
 });
@@ -49,7 +54,7 @@ const apiLimiter = rateLimit({
 // Strict limiter for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: isDev ? 5 * 60 * 1000 : 60 * 60 * 1000, // Dev: 5 min, Prod: 1 hour
-  max: isDev ? 100 : 10, // Dev: 100 attempts, Prod: 10 attempts
+  max: isDev ? 100 : 20, // Dev: 100 attempts, Prod: 20 attempts
   message: {
     success: false,
     message: 'Too many login attempts, please try again after an hour'

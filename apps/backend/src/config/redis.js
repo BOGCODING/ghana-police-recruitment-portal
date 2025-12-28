@@ -70,16 +70,17 @@ const connectRedis = async () => {
   } catch (error) {
     logger.error('Redis (TCP) connection failed:', error.message);
     if (upstash) {
-      logger.info('Falling back to Upstash REST for caching.');
-    } else {
-      console.warn('WARNING: Redis connection failed. Rate limiting will fall back to memory store.');
+      logger.info('Upstash Redis REST client is active (Fallback).');
+      return upstash;
     }
+    console.warn('WARNING: Redis (TCP) and Upstash REST both unavailable. Rate limiting will fall back to memory store.');
     redis = null;
-    return upstash || null;
+    return null;
   }
 };
 
-const getRedis = () => redis || upstash;
+const getRedis = () => redis;
+const getUpstash = () => upstash;
 
 // Cache helpers - prioritize Upstash REST then ioredis
 const cacheGet = async (key) => {
@@ -145,9 +146,11 @@ const cacheFlush = async (pattern) => {
 module.exports = {
   connectRedis,
   getRedis,
+  getUpstash,
   cacheGet,
   cacheSet,
   cacheDelete,
   cacheFlush,
-  isUpstash: !!upstash
+  isUpstash: !!upstash,
+  isTcp: !!redis
 };

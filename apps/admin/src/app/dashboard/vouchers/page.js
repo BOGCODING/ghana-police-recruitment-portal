@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import voucherService from '@/services/voucherService';
 import systemService from '@/services/systemService';
-import api from '@/lib/axios';
+import api, { API_URL } from '@/lib/axios';
 import styles from './page.module.css';
 
 // Helper function to safely format dates
@@ -43,7 +43,6 @@ export default function VouchersPage() {
   const [newPrice, setNewPrice] = useState('');
   const [updatingPrice, setUpdatingPrice] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   const fetchVouchers = useCallback(async () => {
     try {
@@ -322,7 +321,6 @@ function GenerateSingleModal({ onClose, onSuccess }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -425,7 +423,6 @@ function BulkGenerateModal({ onClose, onSuccess }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   const handleSubmit = async (e) => {
     e.preventDefault();

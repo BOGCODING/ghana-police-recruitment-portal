@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import styles from './track.module.css';
+import { api } from '@/utils/api';
 
 export default function TrackApplicationPage() {
   const [appId, setAppId] = useState('');
@@ -17,23 +18,10 @@ export default function TrackApplicationPage() {
     setResult(null);
 
     try {
-      let rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      rawUrl = rawUrl.trim();
-      console.log('Debug Track Page:', { rawUrl });
-      
-      const baseUrl = rawUrl.replace(/\/api\/?$/, '');
-      console.log('Debug Track Page:', { baseUrl });
-
-      const res = await fetch(`${baseUrl}/api/applications/track/${appId.trim().toUpperCase()}`);
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setResult(data.data);
-      } else {
-        setError(data.message || 'Application not found. Please verify your ID.');
-      }
+      const data = await api(`/api/applications/track/${appId.trim().toUpperCase()}`);
+      setResult(data.data);
     } catch (err) {
-      setError('An error occurred while tracking your application. Please try again later.');
+      setError(err.message || 'Application not found. Please verify your ID.');
     } finally {
       setLoading(false);
     }

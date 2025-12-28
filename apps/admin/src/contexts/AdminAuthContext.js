@@ -34,6 +34,11 @@ export function AdminAuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    // Skip auth check if we are on the login page to avoid 401 loops
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/login')) {
+      setLoading(false);
+      return;
+    }
     fetchAdmin();
   }, [fetchAdmin]);
 

@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FiSearch, FiFilter, FiEye, FiDownload, FiCheck, FiX, FiCalendar, FiCheckSquare, FiSquare, FiMoreVertical, FiAlertCircle, FiClipboard } from 'react-icons/fi';
-import api from '@/lib/axios';
+import api, { API_URL } from '@/lib/axios';
 import { applicationService } from '@/services/applicationService';
 import styles from './page.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 
 export default function ApplicationsPage() {
   const router = useRouter();
@@ -76,7 +76,6 @@ export default function ApplicationsPage() {
   };
 
   const handleExport = () => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const token = localStorage.getItem('adminAccessToken');
     const queryParams = new URLSearchParams(
       Object.fromEntries(Object.entries(filters).filter(([, v]) => v))

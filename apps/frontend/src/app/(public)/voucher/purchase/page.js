@@ -11,6 +11,7 @@ import {
   FiCopy
 } from 'react-icons/fi';
 import styles from './styles.module.css';
+import { api } from '@/utils/api';
 
 import StepIndicator from './StepIndicator';
 
@@ -38,11 +39,8 @@ export default function VoucherPurchasePage() {
   useEffect(() => {
     const fetchPrice = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/system/voucher-price`);
-        const data = await response.json();
-        if (data.success) {
-          setPrice(data.data.price);
-        }
+        const data = await api('/api/system/voucher-price');
+        setPrice(data.data.price);
       } catch (error) {
         console.error('Failed to fetch voucher price:', error);
       }
@@ -90,30 +88,21 @@ export default function VoucherPurchasePage() {
   const handlePurchase = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/vouchers/purchase`, {
+      const data = await api('/api/vouchers/purchase', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(formData)
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Normalize response
-        const voucherData = data.data;
-        setVoucher({
-          serial_number: voucherData.serial_number || voucherData.serialNumber,
-          pin_code: voucherData.pin_code || voucherData.pinCode
-        });
-        setCurrentStep(2);
-      } else {
-        alert(data.message || 'Payment failed');
-      }
+      // Normalize response
+      const voucherData = data.data;
+      setVoucher({
+        serial_number: voucherData.serial_number || voucherData.serialNumber,
+        pin_code: voucherData.pin_code || voucherData.pinCode
+      });
+      setCurrentStep(2);
     } catch (error) {
       console.error('Purchase error:', error);
-      alert('An error occurred during purchase');
+      alert(error.message || 'An error occurred during purchase');
     } finally {
       setLoading(false);
     }

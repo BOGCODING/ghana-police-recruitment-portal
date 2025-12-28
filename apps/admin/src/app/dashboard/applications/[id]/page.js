@@ -7,7 +7,7 @@ import styles from './page.module.css';
 import StatusTimeline from '@/components/applications/StatusTimeline/StatusTimeline';
 import ApplicationNotes from '@/components/applications/ApplicationNotes/ApplicationNotes';
 import { applicationService } from '@/services/applicationService';
-import api from '@/lib/axios';
+import api, { API_URL } from '@/lib/axios';
 
 export default function ApplicationDetail() {
   const { id } = useParams();
@@ -25,12 +25,10 @@ export default function ApplicationDetail() {
     message: ''
   });
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
+  
   useEffect(() => {
     const fetchApp = async () => {
       try {
-        const token = localStorage.getItem('adminToken');
         
         // Get current admin info
         const adminRes = await api.get('/admin/me');
@@ -52,7 +50,7 @@ export default function ApplicationDetail() {
       }
     };
     fetchApp();
-  }, [id, API_URL]);
+  }, [id]);
 
   const handleDocumentVerify = async (docId, status) => {
     try {

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { api } from '@/utils/api';
 import styles from './styles.module.css';
 
 export default function VerifyEmailPage() {
@@ -11,7 +12,6 @@ export default function VerifyEmailPage() {
   const [status, setStatus] = useState('loading'); // loading, success, error
   const [message, setMessage] = useState('');
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -22,8 +22,7 @@ export default function VerifyEmailPage() {
       }
 
       try {
-        const res = await fetch(`${API_URL}/api/auth/verify-email/${token}`);
-        const data = await res.json();
+        const data = await api(`/api/auth/verify-email/${token}`);
 
         if (data.success) {
           setStatus('success');
@@ -35,12 +34,12 @@ export default function VerifyEmailPage() {
       } catch (error) {
         console.error('Verification error:', error);
         setStatus('error');
-        setMessage('A network error occurred. Please try again later.');
+        setMessage(error.message || 'A network error occurred. Please try again later.');
       }
     };
 
     verifyToken();
-  }, [token, API_URL]);
+  }, [token]);
 
   return (
     <div className={styles.container}>

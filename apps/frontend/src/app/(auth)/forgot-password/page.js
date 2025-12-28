@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { api } from '@/utils/api';
 import styles from './styles.module.css';
 
 export default function ForgotPasswordPage() {
@@ -9,7 +9,6 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const { API_URL } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,14 +17,10 @@ export default function ForgotPasswordPage() {
     setMessage('');
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+      const data = await api('/api/auth/forgot-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to process request');
 
       setMessage(data.message || 'If this email exists, a reset link has been sent.');
     } catch (err) {

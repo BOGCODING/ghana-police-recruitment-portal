@@ -1,17 +1,40 @@
 const Queue = require('bull');
 const logger = require('../utils/logger');
 
-// Redis configuration for Bull queues
-const redisConfig = process.env.REDIS_URL 
-  ? process.env.REDIS_URL 
-  : {
+// Redis configuration for Bull queues - mirroring redis.js logic for TLS support
+const getRedisConfig = () => {
+  const url = process.env.REDIS_URL;
+  
+  if (url) {
+    const isTls = url.startsWith('rediss://');
+    return {
+      redis: {
+        maxRetriesPerRequest: null, // Required for Bull
+        enableReadyCheck: false, // Bull handles this
+      },
+      // Pass the URL string directly if not TLS, or use an object for TLS
+      // Actually Bull v4 works well with the URL string if it includes the protocol
+      // But we need to ensure TLS options are passed if using rediss://
+      ...(isTls ? {
+        redis: {
+          tls: { rejectUnauthorized: false },
+          maxRetriesPerRequest: null
+        }
+      } : {})
+    };
+  }
+
+  return {
     redis: {
       host: process.env.REDIS_HOST || 'localhost',
       port: parseInt(process.env.REDIS_PORT) || 6379,
       password: process.env.REDIS_PASSWORD || undefined,
-      maxRetriesPerRequest: 3
+      maxRetriesPerRequest: null
     }
   };
+};
+
+const redisConfig = getRedisConfig();
 
 // Default job options
 const defaultJobOptions = {

@@ -4,14 +4,14 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
 import { applicationService } from '@/services/applicationService';
+import { API_URL } from '@/lib/axios';
 
 export default function PrintApplication() {
   const { id } = useParams();
   const [app, setApp] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
+  
   useEffect(() => {
     const fetchApp = async () => {
       try {
@@ -30,7 +30,7 @@ export default function PrintApplication() {
       }
     };
     fetchApp();
-  }, [id, API_URL]);
+  }, [id]);
 
   if (loading) return <div className={styles.loading}>Preparing document...</div>;
   if (!app) return <div className={styles.error}>Application not found.</div>;

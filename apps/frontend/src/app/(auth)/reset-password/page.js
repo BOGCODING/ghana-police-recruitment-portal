@@ -2,7 +2,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { api } from '@/utils/api';
 import styles from '../forgot-password/styles.module.css'; // Reuse styles
 
 function ResetPasswordForm() {
@@ -14,7 +14,6 @@ function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  const { API_URL } = useAuth();
 
   useEffect(() => {
     if (!token) {
@@ -33,14 +32,10 @@ function ResetPasswordForm() {
     setError('');
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/reset-password`, {
+      await api('/api/auth/reset-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password })
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to reset password');
 
       setSuccess(true);
       setTimeout(() => router.push('/login'), 3000);

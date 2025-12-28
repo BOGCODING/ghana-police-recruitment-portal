@@ -1,9 +1,9 @@
 import axios from 'axios';
 import jsCookie from 'js-cookie';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL 
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api` 
-  : '/api';
+export const rawUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '');
+export const baseURL = rawUrl ? (rawUrl.endsWith('/api') ? rawUrl : `${rawUrl.replace(/\/+$/, '')}/api`) : '/api';
+export const API_URL = rawUrl.replace(/\/+$/, ''); // Base URL without /api prefix
 
 const api = axios.create({
   baseURL,
@@ -30,28 +30,38 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/login')) {
-      originalRequest._retry = true;
+      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('adminRefreshToken') : null;
       
-      try {
-        const refreshToken = localStorage.getItem('adminRefreshToken');
-        const { data } = await axios.post(`${baseURL}/admin/refresh-token`, 
-          { refreshToken },
-          { withCredentials: true }
-        );
+      // Only attempt refresh if we have a refresh token
+      if (refreshToken) {
+        originalRequest._retry = true;
+        
+        try {
+          const { data } = await axios.post(`${baseURL}/admin/refresh-token`, 
+            { refreshToken },
+            { withCredentials: true }
+          );
 
-        if (data.success && data.data.accessToken) {
-          localStorage.setItem('adminAccessToken', data.data.accessToken);
-          if (data.data.refreshToken) {
-            localStorage.setItem('adminRefreshToken', data.data.refreshToken);
+          if (data.success && data.data.accessToken) {
+            localStorage.setItem('adminAccessToken', data.data.accessToken);
+            if (data.data.refreshToken) {
+              localStorage.setItem('adminRefreshToken', data.data.refreshToken);
+            }
+            
+            originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
+            return api(originalRequest);
           }
-          
-          originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
-          return api(originalRequest);
+        } catch (refreshError) {
+          localStorage.removeItem('adminAccessToken');
+          localStorage.removeItem('adminRefreshToken');
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
         }
-      } catch (refreshError) {
+      } else {
+        // No refresh token, just clean up and redirect if we're not already heading to login
         localStorage.removeItem('adminAccessToken');
-        localStorage.removeItem('adminRefreshToken');
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
           window.location.href = '/login';
         }
       }
