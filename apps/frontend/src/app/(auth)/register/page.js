@@ -24,17 +24,13 @@ export default function RegisterPage() {
   useEffect(() => {
     const checkSettings = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        const res = await fetch(`${API_URL}/system/public-settings`);
-        if (res.ok) {
-          const data = await res.json();
-          const settings = data.data || [];
-          const allowReg = settings.find(s => s.key === 'allow_new_registrations');
+        const data = await api('/api/system/public-settings');
+        const settings = data.data || [];
+        const allowReg = settings.find(s => s.key === 'allow_new_registrations');
 
-          if (allowReg && allowReg.value === false) {
-            alert('New registrations are currently disabled.');
-            router.push('/');
-          }
+        if (allowReg && allowReg.value === false) {
+          alert('New registrations are currently disabled.');
+          router.push('/');
         }
       } catch (err) {
         console.error('Failed to check registration settings', err);
