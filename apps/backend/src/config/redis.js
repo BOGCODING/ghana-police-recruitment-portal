@@ -35,7 +35,11 @@ const createRedisClient = () => {
 
   // Support REDIS_URL if provided
   const client = process.env.REDIS_URL 
-    ? new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 3, lazyConnect: true })
+    ? new Redis(process.env.REDIS_URL, { 
+      maxRetriesPerRequest: 3, 
+      lazyConnect: true,
+      tls: process.env.REDIS_URL.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
+    })
     : new Redis(config);
 
   client.on('connect', () => logger.info('Redis (TCP) client connected'));

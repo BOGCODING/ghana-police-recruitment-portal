@@ -28,8 +28,7 @@ const startServer = async () => {
     httpServer.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`Frontend URL: ${process.env.FRONTEND_URL}`);
-      logger.info(`Admin URL: ${process.env.ADMIN_URL}`);
+      logger.info(`CORS Allowed Origins: ${process.env.CORS_ORIGIN || 'None (using defaults)'}`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);
