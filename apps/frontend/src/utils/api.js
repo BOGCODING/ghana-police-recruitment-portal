@@ -55,8 +55,19 @@ export const api = async (endpoint, options = {}) => {
   
   // Handle 401 (Unauthorized) - Attempt Refresh only for appropriate endpoints
   if (response.status === 401 && !shouldSkipRefresh(path)) {
-    console.warn(`[API] 401 Unauthorized for ${path}. Attempting token refresh...`);
-    const refreshSuccessful = await attemptTokenRefresh();
+    const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+    
+    // Silence 401 for /api/auth/me - it's expected for logged out users
+    if (path === '/api/auth/me') {
+      // Just return null for 401 /me without attempting refresh if no refresh token
+      if (!refreshToken) {
+        return { success: false, data: null };
+      }
+    }
+
+    if (refreshToken) {
+      console.warn(`[API] 401 Unauthorized for ${path}. Attempting token refresh...`);
+      const refreshSuccessful = await attemptTokenRefresh();
     
     if (refreshSuccessful) {
       console.log(`[API] Token refresh successful. Retrying ${path}...`);
@@ -67,8 +78,9 @@ export const api = async (endpoint, options = {}) => {
       } else {
         console.error(`[API] Retry failed for ${path} with status ${response.status}`);
       }
-    } else {
-      console.error(`[API] Token refresh failed. Cannot retry ${path}`);
+      }
+    } else if (path !== '/api/auth/me') {
+      console.error(`[API] Token refresh failed because no refresh token was found for ${path}`);
     }
   }
 

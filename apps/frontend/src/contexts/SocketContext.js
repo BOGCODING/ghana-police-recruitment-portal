@@ -17,7 +17,10 @@ export const SocketProvider = ({ children }) => {
       const newSocket = io(API_URL, {
         path: '/socket.io',
         auth: { token },
-        transports: ['websocket', 'polling'],
+        transports: ['websocket'],
+        upgrade: false,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 2000,
         withCredentials: true
       });
 

@@ -33,6 +33,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/login')) {
       const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('adminRefreshToken') : null;
       
+      // Silence 401 for /admin/me - it's expected for logged out admins
+      if (originalRequest.url.includes('/admin/me')) {
+        if (!refreshToken) {
+          return Promise.resolve({ data: { success: false, data: null } });
+        }
+      }
+
       // Only attempt refresh if we have a refresh token
       if (refreshToken) {
         originalRequest._retry = true;
