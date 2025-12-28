@@ -2,7 +2,7 @@ const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = (process.env.CORS_ORIGIN || '')
       .split(',')
-      .map(o => o.trim())
+      .map(o => o.trim().replace(/[`"']/g, '')) // Remove backticks, single/double quotes
       .filter(Boolean);
     
     // Allow requests with no origin (mobile apps, scripts, etc.)
