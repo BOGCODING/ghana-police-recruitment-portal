@@ -1,3 +1,4 @@
+// [DIAGNOSTIC] API VERSION: 1.0.1-REFRESH-FIX
 // Get API URL from environment
 const rawUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').trim().replace(/['"`]/g, '');
 export const API_URL = rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl.replace(/\/+$/, '');
@@ -55,15 +56,15 @@ export const api = async (endpoint, options = {}) => {
   
   // Handle 401 (Unauthorized) - Attempt Refresh only for appropriate endpoints
   if (response.status === 401 && !shouldSkipRefresh(path)) {
-    const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
-    
     // Silence 401 for /api/auth/me - it's expected for logged out users
-    if (path === '/api/auth/me') {
-      // Just return null for 401 /me without attempting refresh if no refresh token
-      if (!refreshToken) {
+    if (path.includes('/auth/me')) {
+      const rt = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+      if (!rt) {
         return { success: false, data: null };
       }
     }
+
+    const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
 
     if (refreshToken) {
       console.warn(`[API] 401 Unauthorized for ${path}. Attempting token refresh...`);
