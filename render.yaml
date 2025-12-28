@@ -3,7 +3,7 @@ services:
     name: gps-backend
     env: node
     plan: free
-    repo: https://github.com/YOUR_GITHUB_USERNAME/ghana-police-recruitment-portal
+    repo: https://github.com/BOGCODING/ghana-police-recruitment-portal
     rootDir: apps/backend
     buildCommand: pnpm install
     startCommand: node server.js
