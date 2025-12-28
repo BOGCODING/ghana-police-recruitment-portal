@@ -1,5 +1,11 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
+  output: 'standalone',
+  experimental: {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+  },
 
   reactStrictMode: true,
   async rewrites() {
@@ -23,6 +29,15 @@ const nextConfig = {
         pathname: '/uploads/**',
       },
     ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: false,
+      };
+    }
+    return config;
   },
 };
 
