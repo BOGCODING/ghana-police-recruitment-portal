@@ -128,10 +128,13 @@ async function attemptTokenRefresh() {
   
   refreshPromise = (async () => {
     try {
+      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+
       const response = await fetch(`${API_URL}/api/auth/refresh-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        credentials: 'include',
+        body: JSON.stringify({ refreshToken })
       });
 
       if (response.ok) {
@@ -139,6 +142,10 @@ async function attemptTokenRefresh() {
         if (data.success && data.data?.accessToken) {
           if (typeof window !== 'undefined') {
             localStorage.setItem('accessToken', data.data.accessToken);
+            // If the backend also returns a new refresh token, update it
+            if (data.data.refreshToken) {
+              localStorage.setItem('refreshToken', data.data.refreshToken);
+            }
           }
         }
         return true;

@@ -89,11 +89,14 @@ export const api = async (endpoint, options = {}) => {
  */
 async function refreshToken() {
   try {
-    // We only need credentials: 'include' because the refresh token is in an HttpOnly cookie
+    const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('adminRefreshToken') : null;
+    
+    // We send the refreshToken in the body as a fallback for cookie-blocked environments
     const response = await fetch(`${API_URL}/api/admin/refresh-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include'
+      credentials: 'include',
+      body: JSON.stringify({ refreshToken })
     });
 
     if (response.ok) {
@@ -101,6 +104,10 @@ async function refreshToken() {
       if (data.success && data.data?.accessToken) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('adminAccessToken', data.data.accessToken);
+          // If the backend also returns a new refresh token, update it
+          if (data.data.refreshToken) {
+            localStorage.setItem('adminRefreshToken', data.data.refreshToken);
+          }
         }
       }
       return true;
