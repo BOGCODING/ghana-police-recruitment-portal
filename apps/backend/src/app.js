@@ -15,6 +15,7 @@ const { apiLimiter } = require('./middleware/rateLimiter.middleware');
 const { sanitize } = require('./middleware/sanitize.middleware');
 
 const app = express();
+app.set('trust proxy', 1); // Trust Render proxy for Secure cookies
 
 // Security middleware
 app.use(helmet({
