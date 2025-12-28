@@ -3,6 +3,7 @@ const socketAuth = require('./middleware/socket.auth');
 const notificationHandler = require('./handlers/notification.handler');
 const applicationHandler = require('./handlers/application.handler');
 const dashboardHandler = require('./handlers/dashboard.handler');
+const { corsOptions } = require('../config/cors');
 
 let io;
 
@@ -31,10 +32,7 @@ const setupSocketHandlers = (instance) => {
 const initializeWebSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: [
-        process.env.FRONTEND_URL || 'http://localhost:3000',
-        process.env.ADMIN_URL || 'http://localhost:3002'
-      ],
+      origin: corsOptions.origin,
       methods: ['GET', 'POST'],
       credentials: true
     }

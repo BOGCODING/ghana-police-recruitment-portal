@@ -95,7 +95,11 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ email, password })
     });
 
-    // Backend sets HttpOnly cookies
+    // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback
+    if (typeof window !== 'undefined' && data.data.accessToken) {
+      localStorage.setItem('accessToken', data.data.accessToken);
+      localStorage.setItem('refreshToken', data.data.refreshToken);
+    }
     sessionStorage.setItem('isLoggedIn', 'true');
     setUser(data.data.user);
     setAuthChecked(true);
@@ -110,7 +114,11 @@ export function AuthProvider({ children }) {
         body: JSON.stringify(formData)
       });
 
-      // Backend sets HttpOnly cookies
+      // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback
+      if (typeof window !== 'undefined' && data.data.accessToken) {
+        localStorage.setItem('accessToken', data.data.accessToken);
+        localStorage.setItem('refreshToken', data.data.refreshToken);
+      }
       sessionStorage.setItem('isLoggedIn', 'true');
       setUser(data.data.user);
       setAuthChecked(true);
@@ -141,7 +149,11 @@ export function AuthProvider({ children }) {
       console.error('Logout error:', error);
     } finally {
       // Clear local state
-      sessionStorage.removeItem('isLoggedIn');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        sessionStorage.removeItem('isLoggedIn');
+      }
       setUser(null);
       setAuthChecked(false);
       fetchAttempted.current = false;

@@ -29,6 +29,14 @@ export const api = async (endpoint, options = {}) => {
     ...options.headers,
   };
 
+  // Add Authorization header from localStorage as a fallback for cross-site cookie blocks
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
   // If body is FormData, let the browser set Content-Type with boundary
   if (typeof FormData !== 'undefined' && options.body instanceof FormData) {
     delete headers['Content-Type'];
@@ -126,7 +134,15 @@ async function attemptTokenRefresh() {
         credentials: 'include'
       });
 
-      return response.ok;
+      if (response.ok) {
+        const data = await response.json().catch(() => ({}));
+        if (data.success && data.data?.accessToken) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', data.data.accessToken);
+          }
+        }
+        return true;
+      }
     } catch (error) {
       return false;
     } finally {

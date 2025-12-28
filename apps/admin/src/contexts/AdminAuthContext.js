@@ -43,8 +43,11 @@ export function AdminAuthProvider({ children }) {
       body: JSON.stringify({ email, password })
     });
 
-    // We don't need to manually set cookies or localStorage
-    // Backend sets HttpOnly cookies
+    // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback
+    if (typeof window !== 'undefined' && data.data.accessToken) {
+      localStorage.setItem('adminAccessToken', data.data.accessToken);
+      localStorage.setItem('adminRefreshToken', data.data.refreshToken);
+    }
     setAdmin(data.data.user);
     return data.data;
   };
@@ -54,9 +57,14 @@ export function AdminAuthProvider({ children }) {
       await api('/api/admin/logout', { method: 'POST' });
     } catch (e) {
       console.error('Logout error', e);
+    } finally {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('adminAccessToken');
+        localStorage.removeItem('adminRefreshToken');
+      }
+      setAdmin(null);
+      router.push('/login');
     }
-    setAdmin(null);
-    router.push('/login');
   };
 
   return (

@@ -13,9 +13,12 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
+      const token = localStorage.getItem('accessToken');
       const newSocket = io(API_URL, {
-        withCredentials: true,
-        transports: ['websocket', 'polling']
+        path: '/socket.io',
+        auth: { token },
+        transports: ['websocket', 'polling'],
+        withCredentials: true
       });
 
       newSocket.on('connect', () => {
