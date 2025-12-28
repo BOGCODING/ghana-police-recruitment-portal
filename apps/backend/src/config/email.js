@@ -4,34 +4,24 @@ const logger = require('../utils/logger');
 let transporter = null;
 
 const createTransporter = async () => {
-  // For development, use ethereal.email for testing
-  if (process.env.NODE_ENV === 'development' && !process.env.SMTP_USER) {
-    const testAccount = await nodemailer.createTestAccount();
-    logger.info('Created ethereal test email account:', testAccount.user);
-    
+  // If credentials are provided, use them
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
+      host: process.env.SMTP_HOST || 'smtp.gmail.com', // Default to Gmail if only user/pass provided
+      port: parseInt(process.env.SMTP_PORT) || 587,
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
   }
 
-  if (!process.env.SMTP_HOST) {
-    logger.warn('WARNING: SMTP_HOST environment variable is not set. Emails will not be sent. Attempting to connect to localhost (node default).');
-  }
-
+  // Fallback: JSON Transport (Logs emails to console instead of sending)
+  // This ensures the app works "by default" without configuration.
+  logger.warn('WARNING: No SMTP credentials found. Using JSON Transport (emails will be logged to console).');
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
+    jsonTransport: true
   });
 };
 
