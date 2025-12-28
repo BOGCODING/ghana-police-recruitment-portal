@@ -17,7 +17,8 @@
     "test": "pnpm run --parallel test",
     "migrate": "pnpm --filter backend migrate",
     "seed": "pnpm --filter backend seed",
-    "clean": "pnpm run --parallel clean && rm -rf node_modules"
+    "clean": "pnpm run --parallel clean && rm -rf node_modules",
+    "deploy": "git add . && git commit -m \"Auto-deploy update\" && git push origin main"
   },
   "keywords": [
     "ghana-police",
