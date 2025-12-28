@@ -11,80 +11,75 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').trim().replace(/['"`]/g, '').replace(/\/+$/, '');
 
-  const mounted = useRef(true);
   const socketRef = useRef(null);
 
   useEffect(() => {
-    mounted.current = true;
+    // Ensure any existing socket is closed if not admin
+    if (!admin) {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        setSocket(null);
+      }
+      return;
+    }
 
-    // Slight delay to avoid race conditions during React mount
+    // Reuse existing socket if available
+    if (socketRef.current) {
+      if (!socket) setSocket(socketRef.current);
+      return;
+    }
+
     const timer = setTimeout(() => {
-      if (!admin || !mounted.current) return;
-
       const token = localStorage.getItem('adminAccessToken');
+      if (!token) return;
+
       const newSocket = io(API_URL, {
         path: '/socket.io',
         auth: { token },
         transports: ['websocket'],
-        upgrade: false,
-        reconnectionAttempts: 10,
-        reconnectionDelay: 2000,
+        reconnection: true,
+        reconnectionAttempts: 15,
+        reconnectionDelay: 1000,
         withCredentials: true,
         autoConnect: true
       });
 
       newSocket.on('connect', () => {
-        if (mounted.current) {
-          console.log('Successfully connected to WebSocket server');
-          setSocket(newSocket);
-        }
+        console.log('Successfully connected to WebSocket server');
+        setSocket(newSocket);
       });
 
       newSocket.on('connect_error', (error) => {
-        if (mounted.current) {
-          console.error('WebSocket Connection Error:', error.message);
-          // Attempt to reconnect manually if it's a transport error
-          if (error.message === 'xhr poll error') {
-            newSocket.io.opts.transports = ['polling', 'websocket'];
-          }
+        // Silence transient errors
+        if (error.message !== 'xhr poll error' && error.message !== 'websocket error') {
+          console.debug('Admin Socket error:', error.message);
         }
       });
 
       newSocket.on('disconnect', (reason) => {
-        if (mounted.current) {
-          console.warn('WebSocket Disconnected:', reason);
-          if (reason === 'io server disconnect') {
-            newSocket.connect();
-          }
+        console.warn('WebSocket Disconnected:', reason);
+        if (reason === 'io server disconnect') {
+          newSocket.connect();
         }
       });
 
       newSocket.on('application:new', (data) => {
-        if (mounted.current) {
-          toast.success(`New application from ${data.applicant_name}!`, {
-            duration: 5000,
-            position: 'top-right',
-            icon: '📝'
-          });
-        }
+        toast.success(`New application from ${data.applicant_name}!`, {
+          duration: 5000,
+          position: 'top-right',
+          icon: '📝'
+        });
       });
 
       socketRef.current = newSocket;
-    }, 500); // 500ms delay
+    }, 1000); // 1s delay
 
     return () => {
-      mounted.current = false;
       clearTimeout(timer);
-      if (socketRef.current) {
-        const s = socketRef.current;
-        setTimeout(() => {
-          if (s) s.close();
-        }, 100);
-        socketRef.current = null;
-      }
-      setSocket(null);
+      // Don't disconnect here to prevent race conditions during remount
     };
-  }, [admin, API_URL]);
+  }, [admin, API_URL, socket]);
 
   return (
     <SocketContext.Provider value={socket}>
