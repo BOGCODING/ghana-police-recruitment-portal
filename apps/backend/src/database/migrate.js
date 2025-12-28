@@ -29,8 +29,11 @@ const migrate = async () => {
     console.log('All migrations completed successfully!');
   } catch (error) {
     console.error(`Migration failed on file: ${currentFile}`);
-    console.error('Error:', error.message);
+    console.error('Error Message:', error.message);
+    console.error('Error Stack:', error.stack);
     console.error('Detail:', error.detail);
+    console.error('Code:', error.code);
+    console.error('Hint:', error.hint);
     process.exit(1);
   } finally {
     client.release();
