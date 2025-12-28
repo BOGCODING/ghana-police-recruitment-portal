@@ -3,7 +3,7 @@ import jsCookie from 'js-cookie';
 
 export const rawUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '');
 export const baseURL = rawUrl ? (rawUrl.endsWith('/api') ? rawUrl : `${rawUrl.replace(/\/+$/, '')}/api`) : '/api';
-export const API_URL = rawUrl.replace(/\/+$/, ''); // Base URL without /api prefix
+export const API_URL = rawUrl ? rawUrl.replace(/\/+$/, '') : ''; // Base URL without /api prefix
 
 const api = axios.create({
   baseURL,
