@@ -30,7 +30,8 @@ const corsOptions = {
       // LOG THE FAILURE SO WE CAN SEE IT IN RENDER DASHBOARD
       console.warn('[CORS] Request blocked from origin: ' + origin);
       console.warn('[CORS] Allowed by Config:', allowedOrigins);
-      callback(new Error('CORS Error: Origin ' + origin + ' not allowed'));
+      // NEVER throw an error here, it causes 500 which strips CORS headers
+      callback(null, false);
     }
   },
   credentials: true,

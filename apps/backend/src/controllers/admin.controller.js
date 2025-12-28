@@ -146,7 +146,7 @@ const login = async (req, res) => {
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Mandatory for cross-site cookies
       path: '/'
     };
 
@@ -220,7 +220,7 @@ const logout = async (req, res) => {
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Mandatory for cross-site cookies
       path: '/'
     };
     res.clearCookie('adminAccessToken', cookieOptions);
@@ -265,7 +265,7 @@ const refreshToken = async (req, res) => {
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Mandatory for cross-site cookies
       path: '/'
     };
 
