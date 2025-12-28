@@ -10,10 +10,14 @@ services:
     runtime: node
     plan: free
     rootDir: apps/backend
-    buildCommand: npm install
+    buildCommand: npm install -g pnpm@latest && pnpm install
     startCommand: node server.js
     healthCheckPath: /api/health
     envVars:
+      - key: NODE_VERSION
+        value: 20.x
+      - key: PNPM_VERSION
+        value: 8.x
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -39,10 +43,14 @@ services:
     runtime: node
     plan: free
     rootDir: apps/frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: npm install -g pnpm@latest && pnpm install && pnpm run build
+    startCommand: pnpm run start
     healthCheckPath: /
     envVars:
+      - key: NODE_VERSION
+        value: 20.x
+      - key: PNPM_VERSION
+        value: 8.x
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
@@ -58,10 +66,14 @@ services:
     runtime: node
     plan: free
     rootDir: apps/admin
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: npm install -g pnpm@latest && pnpm install && pnpm run build
+    startCommand: pnpm run start
     healthCheckPath: /
     envVars:
+      - key: NODE_VERSION
+        value: 20.x
+      - key: PNPM_VERSION
+        value: 8.x
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
