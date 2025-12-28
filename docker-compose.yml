@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -10,7 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: boneforgames
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -35,8 +33,8 @@ services:
 
   backend:
     build:
-      context: .
-      dockerfile: apps/backend/Dockerfile
+      context: ./apps/backend
+      dockerfile: Dockerfile
     container_name: gps_backend
     restart: unless-stopped
     ports:
@@ -44,12 +42,13 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-boneforgames}@postgres:5432/gps_recruitment
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-super-secret-refresh-key-change-in-production}
-      - ADMIN_SECRET=${ADMIN_SECRET:-your-admin-secret-change-in-production}
-      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000,http://localhost:3002}
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/gps_recruitment
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - ADMIN_SECRET=${ADMIN_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN}
       - UPLOAD_PATH=./uploads
     volumes:
       - uploads_data:/app/apps/backend/uploads
@@ -61,8 +60,8 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: apps/frontend/Dockerfile
+      context: ./apps/frontend
+      dockerfile: Dockerfile
     container_name: gps_frontend
     restart: unless-stopped
     ports:
@@ -77,8 +76,8 @@ services:
 
   admin:
     build:
-      context: .
-      dockerfile: apps/admin/Dockerfile
+      context: ./apps/admin
+      dockerfile: Dockerfile
     container_name: gps_admin
     restart: unless-stopped
     ports:

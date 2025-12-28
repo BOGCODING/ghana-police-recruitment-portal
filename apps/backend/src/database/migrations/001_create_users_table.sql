@@ -1,6 +1,4 @@
--- 001_create_users_table.sql
--- Note: In this system, 'users' primarily refers to applicants for portal access.
--- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
