@@ -20,6 +20,10 @@ const createTransporter = async () => {
     });
   }
 
+  if (!process.env.SMTP_HOST) {
+    logger.warn('WARNING: SMTP_HOST environment variable is not set. Emails will not be sent. Attempting to connect to localhost (node default).');
+  }
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT) || 587,
@@ -39,7 +43,7 @@ const getTransporter = async () => {
 };
 
 const emailConfig = {
-  from: process.env.EMAIL_FROM || 'noreply@gps-recruitment.gov.gh',
+  from: process.env.EMAIL_FROM || 'boglogodwin10@gmail.com',
   templates: {
     registration: 'registration',
     applicationSubmitted: 'application-submitted',

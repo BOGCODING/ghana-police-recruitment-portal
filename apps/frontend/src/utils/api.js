@@ -130,6 +130,10 @@ async function attemptTokenRefresh() {
     try {
       const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
 
+      if (!refreshToken) {
+        return false;
+      }
+
       const response = await fetch(`${API_URL}/api/auth/refresh-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
