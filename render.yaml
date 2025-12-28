@@ -15,8 +15,8 @@ services:
       - key: REDIS_URL
         sync: false
       - key: JWT_SECRET
-        generate: true
+        sync: false
       - key: ADMIN_SECRET
-        generate: true
+        sync: false
       - key: CORS_ORIGIN
         sync: false
