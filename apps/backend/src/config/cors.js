@@ -10,10 +10,15 @@ const corsOptions = {
       return callback(null, true);
     }
     
-    // Explicitly allow localhost:3000 (Frontend) and localhost:3002 (Admin)
+    // Explicitly allow localhost and production domains
     const localOrigins = ['http://localhost:3000', 'http://localhost:3002', 'http://127.0.0.1:3000', 'http://127.0.0.1:3002'];
 
-    if (allowedOrigins.includes(origin) || localOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    if (
+      allowedOrigins.includes('*') || 
+      allowedOrigins.includes(origin) || 
+      localOrigins.includes(origin) || 
+      process.env.NODE_ENV === 'development'
+    ) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
