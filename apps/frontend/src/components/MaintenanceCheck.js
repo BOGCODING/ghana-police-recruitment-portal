@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { api } from '../utils/api';
 
 export default function MaintenanceCheck({ children }) {
   const router = useRouter();
@@ -16,17 +17,7 @@ export default function MaintenanceCheck({ children }) {
 
     const checkStatus = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        const res = await fetch(`${API_URL}/system/public-settings`);
-        
-        // If 503 Service Unavailable, it means we are in maintenance mode
-        // Or if we specifically check the setting value
-        if (res.status === 503) {
-           router.push('/maintenance');
-           return;
-        }
-
-        const data = await res.json();
+        const data = await api('/api/system/public-settings');
         const settings = data.data || [];
         const maintenanceMode = settings.find(s => s.key === 'maintenance_mode');
 

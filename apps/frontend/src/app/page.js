@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { api } from '../utils/api';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import styles from './page.module.css';
 
@@ -94,30 +95,10 @@ export default function HomePage() {
     setTrackResult(null);
 
     try {
-      // Normalize URL to remove trailing /api if present to prevent double slash
-      let rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      rawUrl = rawUrl.trim();
-      
-      console.log('Debug Track:', { 
-        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL, 
-        rawUrl,
-        beforeReplace: rawUrl 
-      });
-
-      // Robustly remove trailing /api with or without slash
-      const baseUrl = rawUrl.replace(/\/api\/?$/, '');
-      
-      console.log('Debug Track:', { baseUrl, finalUrl: `${baseUrl}/api/applications/track/${trackId.trim()}` });
-
-      const res = await fetch(`${baseUrl}/api/applications/track/${trackId.trim()}`);
-      const data = await res.json();
-      if (data.success) {
-        setTrackResult(data.data);
-      } else {
-        setTrackError(data.message || 'Application not found');
-      }
+      const data = await api(`/api/applications/track/${trackId.trim()}`);
+      setTrackResult(data.data);
     } catch (err) {
-      setTrackError('Failed to check status. Please try again.');
+      setTrackError(err.message || 'Application not found');
     } finally {
       setTrackLoading(false);
     }

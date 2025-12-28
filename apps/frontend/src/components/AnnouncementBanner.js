@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { FiInfo, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
+import { api } from '../utils/api';
 
 const AnnouncementBanner = () => {
   const [banner, setBanner] = useState(null);
@@ -9,23 +10,17 @@ const AnnouncementBanner = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        const res = await fetch(`${API_URL}/system/public-settings`);
-        if (res.ok) {
-          const data = await res.json();
-          // Find announcement_banner setting - backend wraps in .data
-          const settings = data.data || [];
-          const setting = settings.find(s => s.key === 'announcement_banner');
-          if (setting && setting.value) {
-
-             // Handle case where value might be a string or object
-             const parsed = typeof setting.value === 'string' 
-                ? JSON.parse(setting.value) 
-                : setting.value;
-             
-             if (parsed.show) {
-               setBanner(parsed);
-             }
+        const data = await api('/api/system/public-settings');
+        const settings = data.data || [];
+        const setting = settings.find(s => s.key === 'announcement_banner');
+        
+        if (setting && setting.value) {
+          const parsed = typeof setting.value === 'string' 
+            ? JSON.parse(setting.value) 
+            : setting.value;
+          
+          if (parsed && parsed.show) {
+            setBanner(parsed);
           }
         }
       } catch (err) {
