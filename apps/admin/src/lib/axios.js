@@ -7,6 +7,7 @@ export const API_URL = rawUrl.replace(/\/+$/, ''); // Base URL without /api pref
 
 const api = axios.create({
   baseURL,
+  timeout: 15000, // 15 seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -39,7 +40,10 @@ api.interceptors.response.use(
         try {
           const { data } = await axios.post(`${baseURL}/admin/refresh-token`, 
             { refreshToken },
-            { withCredentials: true }
+            { 
+              withCredentials: true,
+              timeout: 10000 // 10 seconds for refresh specifically
+            }
           );
 
           if (data.success && data.data.accessToken) {

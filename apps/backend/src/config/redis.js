@@ -24,6 +24,7 @@ const createRedisClient = () => {
     port: parseInt(process.env.REDIS_PORT) || 6379,
     password: process.env.REDIS_PASSWORD || undefined,
     maxRetriesPerRequest: 3,
+    connectTimeout: 10000, // 10 seconds timeout
     retryDelayOnFailover: 100,
     enableReadyCheck: true,
     lazyConnect: true,
@@ -36,7 +37,8 @@ const createRedisClient = () => {
   // Support REDIS_URL if provided
   const client = process.env.REDIS_URL 
     ? new Redis(process.env.REDIS_URL, { 
-      maxRetriesPerRequest: 3, 
+      maxRetriesPerRequest: 3,
+      connectTimeout: 10000,
       lazyConnect: true,
       tls: process.env.REDIS_URL.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
     })

@@ -17,22 +17,35 @@ initializeWebSocket(httpServer);
 // Start server
 const startServer = async () => {
   try {
-    // Connect to PostgreSQL
-    await connectDatabase();
-    logger.info('PostgreSQL connected successfully');
-
-    // Connect to Redis
-    await connectRedis();
-    logger.info('Redis connected successfully');
-
+    // Start listening immediately so health checks pass on Render
     httpServer.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`CORS Allowed Origins: ${process.env.CORS_ORIGIN || 'None (using defaults)'}`);
     });
+
+    // Initialize connections in parallel
+    const [dbResult, redisResult] = await Promise.allSettled([
+      connectDatabase(),
+      connectRedis()
+    ]);
+
+    if (dbResult.status === 'fulfilled') {
+      logger.info('PostgreSQL connected successfully');
+    } else {
+      logger.error('PostgreSQL connection failed during startup:', dbResult.reason.message);
+    }
+
+    if (redisResult.status === 'fulfilled') {
+      logger.info('Redis connected successfully');
+    } else {
+      logger.error('Redis connection failed during startup:', redisResult.reason.message);
+    }
+
+    logger.info(`CORS Allowed Origins: ${process.env.CORS_ORIGIN || 'None (using defaults)'}`);
   } catch (error) {
-    logger.error('Failed to start server:', error);
-    process.exit(1);
+    logger.error('Unexpected error during startup:', error);
+    // Prefer to stay alive so we can log errors, but if it's a critical port error, we exit
+    if (error.code === 'EADDRINUSE') process.exit(1);
   }
 };
 
