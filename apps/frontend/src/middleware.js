@@ -33,14 +33,14 @@ export function middleware(request) {
   // 3. Handle Protected Routes
   // If the user tries to access a protected route and is NOT logged in, redirect to login.
   const isProtectedRoute = protectedPrefixes.some(prefix => pathname.startsWith(prefix));
-  if (isProtectedRoute) {
-    if (!token) {
-      const loginUrl = new URL('/login', request.url);
-      // Optional: Add a 'from' query param to redirect back after login
-      loginUrl.searchParams.set('from', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
+  // Relaxed Middleware: Allow client-side to handle auth via localStorage
+  // if (isProtectedRoute) {
+  //   if (!token) {
+  //     const loginUrl = new URL('/login', request.url);
+  //     loginUrl.searchParams.set('from', pathname);
+  //     return NextResponse.redirect(loginUrl);
+  //   }
+  // }
 
   // 4. Handle Auth Routes
   // If the user is ALREADY logged in and tries to access login/register, redirect to dashboard.
