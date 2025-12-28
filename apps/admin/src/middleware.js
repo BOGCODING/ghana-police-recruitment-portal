@@ -6,9 +6,10 @@ export function middleware(request) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/login');
 
   // allow client-side to handle auth via encryption/localStorage 
-  // if (!token && !refreshToken && !isAuthPage) {
-  //   return NextResponse.redirect(new URL('/login', request.url));
-  // }
+  // allow client-side to handle auth via encryption/localStorage 
+  if (!token && !refreshToken && !isAuthPage) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 
   // If we have either token and are on login page, go to dashboard
   if ((token || refreshToken) && isAuthPage) {
