@@ -2,14 +2,16 @@ const Queue = require('bull');
 const logger = require('../utils/logger');
 
 // Redis configuration for Bull queues
-const redisConfig = {
-  redis: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT) || 6379,
-    password: process.env.REDIS_PASSWORD || undefined,
-    maxRetriesPerRequest: 3
-  }
-};
+const redisConfig = process.env.REDIS_URL 
+  ? process.env.REDIS_URL 
+  : {
+    redis: {
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT) || 6379,
+      password: process.env.REDIS_PASSWORD || undefined,
+      maxRetriesPerRequest: 3
+    }
+  };
 
 // Default job options
 const defaultJobOptions = {
