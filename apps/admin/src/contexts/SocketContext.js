@@ -9,7 +9,7 @@ const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const { admin } = useAdminAuth(); // Force rebuild
   const [socket, setSocket] = useState(null);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').trim().replace(/['"`]/g, '').replace(/\/+$/, '');
 
   useEffect(() => {
     if (admin) {

@@ -11,8 +11,8 @@ export function AdminAuthProvider({ children }) {
   const router = useRouter();
 
   // Use proxy by default (empty string) to avoid CORS and strictly use next.config.js rewrites
-  const rawUrl = process.env.NEXT_PUBLIC_API_URL || '';
-  const API_URL = rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl.replace(/\/$/, '');
+  const rawUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '');
+  const API_URL = rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl.replace(/\/+$/, '');
 
   // No need for manual cookie reading, API utility handles requests
   const fetchAdmin = useCallback(async () => {

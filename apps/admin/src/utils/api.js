@@ -1,8 +1,8 @@
 import Cookies from 'js-cookie';
 
 // Get API URL from environment - default to empty for relative paths (proxy)
-const rawUrl = process.env.NEXT_PUBLIC_API_URL || '';
-export const API_URL = rawUrl ? (rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl.replace(/\/$/, '')) : '';
+const rawUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '');
+export const API_URL = rawUrl ? (rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl.replace(/\/+$/, '')) : '';
 
 
 /**
