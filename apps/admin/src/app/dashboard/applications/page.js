@@ -77,7 +77,7 @@ export default function ApplicationsPage() {
 
   const handleExport = () => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminAccessToken');
     const queryParams = new URLSearchParams(
       Object.fromEntries(Object.entries(filters).filter(([, v]) => v))
     );

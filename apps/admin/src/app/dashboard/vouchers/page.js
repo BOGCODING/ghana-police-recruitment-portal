@@ -135,7 +135,7 @@ export default function VouchersPage() {
   };
 
   const handleExportCSV = async () => {
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminAccessToken');
     const params = new URLSearchParams({ status: filter !== 'all' ? filter : '' });
     window.open(`${API_URL}/api/vouchers/export-csv?${params}&token=${token}`, '_blank');
   };

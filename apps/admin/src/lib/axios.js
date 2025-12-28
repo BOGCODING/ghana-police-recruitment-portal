@@ -15,22 +15,45 @@ const api = axios.create({
 
 
 api.interceptors.request.use((config) => {
-  const token = jsCookie.get('adminAccessToken') || localStorage.getItem('adminToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('adminAccessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      jsCookie.remove('adminAccessToken');
-      localStorage.removeItem('adminToken');
-      // Only redirect if we are in the browser
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-         window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/login')) {
+      originalRequest._retry = true;
+      
+      try {
+        const refreshToken = localStorage.getItem('adminRefreshToken');
+        const { data } = await axios.post(`${baseURL}/admin/refresh-token`, 
+          { refreshToken },
+          { withCredentials: true }
+        );
+
+        if (data.success && data.data.accessToken) {
+          localStorage.setItem('adminAccessToken', data.data.accessToken);
+          if (data.data.refreshToken) {
+            localStorage.setItem('adminRefreshToken', data.data.refreshToken);
+          }
+          
+          originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        localStorage.removeItem('adminAccessToken');
+        localStorage.removeItem('adminRefreshToken');
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

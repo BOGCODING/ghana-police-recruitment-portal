@@ -1,7 +1,7 @@
 'use client';
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '../utils/api';
+import api from '@/lib/axios';
 
 const AdminAuthContext = createContext(null);
 
@@ -17,12 +17,13 @@ export function AdminAuthProvider({ children }) {
   // No need for manual cookie reading, API utility handles requests
   const fetchAdmin = useCallback(async () => {
     try {
-      // Use api utility - it will automatically send cookies
-      // If access token is expired, it will try to refresh automatically
-      const data = await api('/api/admin/me');
-      setAdmin(data.data);
+      // Use api utility - it will automatically send cookies and tokens
+      const { data } = await api.get('/admin/me');
+      if (data.success) {
+        setAdmin(data.data);
+      }
     } catch (error) {
-      if (error.status === 401) {
+      if (error.response?.status === 401) {
         setAdmin(null);
       } else {
         console.error('Admin auth check failed:', error);
@@ -37,14 +38,10 @@ export function AdminAuthProvider({ children }) {
   }, [fetchAdmin]);
 
   const login = async (email, password) => {
-    // api utility wrapper for consistent error handling
-    const data = await api('/api/admin/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password })
-    });
+    const { data } = await api.post('/admin/login', { email, password });
 
     // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback
-    if (typeof window !== 'undefined' && data.data.accessToken) {
+    if (typeof window !== 'undefined' && data.data?.accessToken) {
       localStorage.setItem('adminAccessToken', data.data.accessToken);
       localStorage.setItem('adminRefreshToken', data.data.refreshToken);
     }
@@ -54,7 +51,7 @@ export function AdminAuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await api('/api/admin/logout', { method: 'POST' });
+      await api.post('/admin/logout');
     } catch (e) {
       console.error('Logout error', e);
     } finally {

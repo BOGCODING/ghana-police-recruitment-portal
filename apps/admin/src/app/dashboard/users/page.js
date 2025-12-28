@@ -1,9 +1,9 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import api from '@/lib/axios';
 import styles from './page.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function AdminUsersPage() {
   const [admins, setAdmins] = useState([]);
@@ -18,11 +18,7 @@ export default function AdminUsersPage() {
 
   const fetchAdmins = useCallback(async () => {
     try {
-      const token = localStorage.getItem('adminToken');
-      const res = await fetch(`${API_URL}/api/admin/users`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const { data } = await api.get('/admin/users');
       if (data.success) setAdmins(data.data);
     } catch (error) {
       console.error('Failed to fetch admins:', error);
@@ -37,36 +33,18 @@ export default function AdminUsersPage() {
     e.preventDefault();
     setError('');
     try {
-      const token = localStorage.getItem('adminToken');
-      const res = await fetch(`${API_URL}/api/admin/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const { data } = await api.post('/admin/users', formData);
       setShowModal(false);
       setFormData({ email: '', password: '', firstName: '', lastName: '', role: 'VIEWER', assignedRegions: [] });
       fetchAdmins();
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     }
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
     try {
-      const token = localStorage.getItem('adminToken');
-      await fetch(`${API_URL}/api/admin/users/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ isActive: !currentStatus })
-      });
+      await api.put(`/admin/users/${id}`, { isActive: !currentStatus });
       fetchAdmins();
     } catch (error) {
       console.error('Failed to update:', error);
