@@ -72,3 +72,5 @@ services:
           name: gps-backend
           type: web
           property: host
+      - key: NEXT_PUBLIC_WS_URL
+        sync: false
