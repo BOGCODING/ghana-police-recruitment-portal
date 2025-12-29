@@ -553,7 +553,10 @@ const getAllApplications = async (req, res) => {
       values
     );
     
-    return paginatedResponse(res, result.rows, { page, limit, total: parseInt(countResult.rows[0].count) });
+    return paginatedResponse(res, result.rows.map(row => ({
+      ...row,
+      passportPhoto: row.passportPhotoPath ? formatDocument({ filePath: row.passportPhotoPath }) : null
+    })), { page, limit, total: parseInt(countResult.rows[0].count) });
     
   } catch (error) {
     logger.error('Get all applications error:', error);
@@ -1164,14 +1167,18 @@ const getRecentApplications = async (req, res) => {
   try {
     const result = await query(`
       SELECT app.id, app."applicationId", app.status, app.category, app."createdAt",
-             pi."firstName", pi."lastName"
+             pi."firstName", pi."lastName",
+             (SELECT "filePath" FROM documents WHERE "applicationId" = app.id AND "documentType" IN ('PASSPORT_PHOTO', 'passportPhoto') LIMIT 1) as "passportPhotoPath"
       FROM applications app
       LEFT JOIN personal_info pi ON app.id = pi."applicationId"
       ORDER BY app."createdAt" DESC
       LIMIT 10
     `);
     
-    return successResponse(res, result.rows);
+    return successResponse(res, result.rows.map(row => ({
+      ...row,
+      passportPhoto: row.passportPhotoPath ? formatDocument({ filePath: row.passportPhotoPath }) : null
+    })));
     
   } catch (error) {
     logger.error('Get recent applications error:', error);
