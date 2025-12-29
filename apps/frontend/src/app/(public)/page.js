@@ -127,8 +127,8 @@ export default function HomePage() {
             <Link href="/requirements">
               <motion.span 
                 className={styles.btnSecondary}
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                whileTap={{ scale: 0.80 }}
               >
                 View Requirements
               </motion.span>

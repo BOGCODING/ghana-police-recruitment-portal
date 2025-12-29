@@ -69,7 +69,8 @@ const uploadDocument = async (req, res) => {
     logger.info(`Document uploaded: ${req.file.filename} type: ${documentType}`);
 
     const baseUrl = (process.env.API_URL || '').trim().replace(/\/+$/, '').replace(/\/api$/, '');
-    const url = baseUrl ? `${baseUrl}${req.file.url}` : req.file.url;
+    const fileUrl = req.file.processedUrl || req.file.url;
+    const url = baseUrl ? `${baseUrl}${fileUrl}` : fileUrl;
     
     return successResponse(res, {
       ...result.rows[0],

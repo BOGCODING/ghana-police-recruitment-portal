@@ -88,12 +88,21 @@ const toUpperCase = (str) => {
  * Format document to include full URL
  */
 const formatDocument = (doc) => {
-  if (!doc) return null;
+  if (!doc || !doc.filePath) return null;
   const baseUrl = (process.env.API_URL || '').trim().replace(/\/+$/, '');
-  const relativeUrl = `/uploads/${doc.filePath.replace(/\\/g, '/')}`;
+  
+  // Normalize filePath: remove any leading slash, handled relative to uploads
+  let normalizedPath = doc.filePath.replace(/\\/g, '/').replace(/^\/+/, '');
+  
+  // If it doesn't start with uploads/, add it
+  if (!normalizedPath.startsWith('uploads/')) {
+    normalizedPath = `uploads/${normalizedPath}`;
+  }
+  
+  const fullUrl = `/${normalizedPath}`;
   return {
     ...doc,
-    url: baseUrl ? `${baseUrl}${relativeUrl}` : relativeUrl
+    url: baseUrl ? `${baseUrl}${fullUrl}` : fullUrl
   };
 };
 

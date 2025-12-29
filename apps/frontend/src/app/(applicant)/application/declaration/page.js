@@ -12,23 +12,8 @@ import Animation from '@/components/common/Animation/Animation';
 import AutoSave from '@/components/application/AutoSave/AutoSave';
 
 const declarationSchema = z.object({
-  hasNoCriminalRecord: z.literal(true, {
-    errorMap: () => ({ message: 'You must confirm you have no criminal record' }),
-  }),
-  hasNotBeenDismissed: z.literal(true, {
-    errorMap: () => ({ message: 'You must confirm you have not been dismissed' }),
-  }),
-  isGhanaianByBirth: z.literal(true, {
-    errorMap: () => ({ message: 'You must confirm you are Ghanaian by birth' }),
-  }),
-  isOfGoodCharacter: z.literal(true, {
-    errorMap: () => ({ message: 'You must confirm you are of good character' }),
-  }),
-  isPhysicallyFit: z.literal(true, {
-    errorMap: () => ({ message: 'You must confirm you are physically fit' }),
-  }),
-  acceptsTerms: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the terms and conditions' }),
+  acceptsDeclarations: z.boolean().refine(val => val === true, {
+    message: 'You must confirm the declaration to proceed'
   }),
   signature: z.string().min(5, 'Full name as signature is required (min 5 characters)'),
 });
@@ -43,12 +28,7 @@ export default function DeclarationPage() {
   const getNormalizedDefaultValues = useCallback(() => {
     const data = formData.declaration || {};
     return {
-      hasNoCriminalRecord: data.hasNoCriminalRecord ?? false,
-      hasNotBeenDismissed: data.hasNotBeenDismissed ?? false,
-      isGhanaianByBirth: data.isGhanaianByBirth ?? false,
-      isOfGoodCharacter: data.isOfGoodCharacter ?? false,
-      isPhysicallyFit: data.isPhysicallyFit ?? false,
-      acceptsTerms: data.acceptsTerms ?? false,
+      acceptsDeclarations: data.acceptsDeclarations ?? false,
       signature: data.signature || ''
     };
   }, [formData.declaration]);
