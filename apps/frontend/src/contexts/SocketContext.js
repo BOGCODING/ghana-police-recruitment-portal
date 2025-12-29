@@ -9,7 +9,7 @@ const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const { user, refetch } = useAuth();
   const [socket, setSocket] = useState(null);
-  const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').trim().replace(/['"`]/g, '').replace(/\/+$/, '');
+  const WS_URL = (process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '').replace(/\/+$/, '');
 
   const socketRef = useRef(null);
 
@@ -36,7 +36,7 @@ export const SocketProvider = ({ children }) => {
       const token = localStorage.getItem('accessToken');
       if (!token) return;
 
-      const newSocket = io(API_URL, {
+      const newSocket = io(WS_URL, {
         path: '/socket.io',
         auth: { token },
         transports: ['websocket'],
@@ -87,7 +87,7 @@ export const SocketProvider = ({ children }) => {
       // We only disconnect when the user logs out or if the provider itself is destroyed permanently.
       // This eliminates the "closed before established" race condition.
     };
-  }, [user, API_URL, refetch, socket]);
+  }, [user, WS_URL, refetch, socket]);
 
   return (
     <SocketContext.Provider value={socket}>

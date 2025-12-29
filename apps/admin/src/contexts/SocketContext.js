@@ -9,7 +9,7 @@ const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const { admin } = useAdminAuth(); // Force rebuild
   const [socket, setSocket] = useState(null);
-  const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').trim().replace(/['"`]/g, '').replace(/\/+$/, '');
+  const WS_URL = (process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '').replace(/\/+$/, '');
 
   const socketRef = useRef(null);
 
@@ -34,7 +34,7 @@ export const SocketProvider = ({ children }) => {
       const token = localStorage.getItem('adminAccessToken');
       if (!token) return;
 
-      const newSocket = io(API_URL, {
+      const newSocket = io(WS_URL, {
         path: '/socket.io',
         auth: { token },
         transports: ['websocket'],
@@ -79,7 +79,7 @@ export const SocketProvider = ({ children }) => {
       clearTimeout(timer);
       // Don't disconnect here to prevent race conditions during remount
     };
-  }, [admin, API_URL, socket]);
+  }, [admin, WS_URL, socket]);
 
   return (
     <SocketContext.Provider value={socket}>
