@@ -89,10 +89,11 @@ const toUpperCase = (str) => {
  */
 const formatDocument = (doc) => {
   if (!doc) return null;
-  const baseUrl = (process.env.API_URL || '').trim().replace(/\/+$/, '') || 'http://localhost:5000';
+  const baseUrl = (process.env.API_URL || '').trim().replace(/\/+$/, '');
+  const relativeUrl = `/uploads/${doc.filePath.replace(/\\/g, '/')}`;
   return {
     ...doc,
-    url: `${baseUrl}/uploads/${doc.filePath.replace(/\\/g, '/')}`
+    url: baseUrl ? `${baseUrl}${relativeUrl}` : relativeUrl
   };
 };
 

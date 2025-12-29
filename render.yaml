@@ -11,7 +11,7 @@ services:
     plan: free
     rootDir: apps/backend
     buildCommand: npm install -g pnpm@latest && pnpm install
-    startCommand: node server.js
+    startCommand: pnpm run migrate && node server.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION

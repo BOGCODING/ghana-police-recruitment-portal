@@ -68,11 +68,12 @@ const uploadDocument = async (req, res) => {
 
     logger.info(`Document uploaded: ${req.file.filename} type: ${documentType}`);
 
-    const baseUrl = (process.env.API_URL || '').trim().replace(/\/+$/, '').replace(/\/api$/, '') || 'http://localhost:5000';
+    const baseUrl = (process.env.API_URL || '').trim().replace(/\/+$/, '').replace(/\/api$/, '');
+    const url = baseUrl ? `${baseUrl}${req.file.url}` : req.file.url;
     
     return successResponse(res, {
       ...result.rows[0],
-      url: `${baseUrl}${req.file.url}`
+      url: url
     }, 'Document uploaded successfully', 201);
 
   } catch (error) {

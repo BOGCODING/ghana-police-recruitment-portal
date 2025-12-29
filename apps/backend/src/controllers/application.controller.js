@@ -124,8 +124,13 @@ const savePersonalInfo = async (req, res) => {
     return successResponse(res, result, 'Personal information saved');
     
   } catch (error) {
-    logger.error('Save personal info error:', error);
-    return errorResponse(res, 'Failed to save personal information', 500);
+    logger.error('Save personal info CRITICAL ERROR:', {
+      message: error.message,
+      stack: error.stack,
+      userId: req.user.id,
+      body: req.body
+    });
+    return errorResponse(res, `Failed to save personal information: ${error.message}`, 500);
   }
 };
 
