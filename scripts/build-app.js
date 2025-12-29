@@ -49,7 +49,7 @@ async function copyFolder(src, dest) {
 async function build() {
   try {
     // 1. Run next build
-    await runCommand('npx', ['next', 'build'], baseDir);
+    await runCommand('pnpm', ['exec', 'next', 'build'], baseDir);
 
     // 2. Cool down
     console.log('Build finished. Waiting for handles to release...');
