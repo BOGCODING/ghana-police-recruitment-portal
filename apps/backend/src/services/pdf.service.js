@@ -61,14 +61,13 @@ const PDFService = {
 
         // --- Premium Header Section ---
         try {
-          // National Color Strip (Ultra-Compact)
+          // National Color Strip (Compact)
           const stripWidth = 595;
-          doc.rect(0, 0, stripWidth, 6).fill('#006B3F');
-          doc.rect(0, 6, stripWidth, 3).fill('#FCD116');
-          doc.rect(0, 9, stripWidth, 1).fill('#CE1126');
+          doc.rect(0, 0, stripWidth, 10).fill('#006B3F');
+          doc.rect(0, 10, stripWidth, 4).fill('#FCD116');
+          doc.rect(0, 14, stripWidth, 2).fill('#CE1126');
           
           doc.moveDown(0.8);
-          
           // Official Logo Placeholder/Text
           doc.fillColor('#006B3F').font('Helvetica-Bold').fontSize(16).text('GHANA POLICE SERVICE', { align: 'center', characterSpacing: 1 });
           doc.fillColor('#444444').font('Helvetica').fontSize(9).text('RECRUITMENT PORTAL - APPLICATION SUMMARY', { align: 'center', characterSpacing: 2 });
@@ -84,61 +83,74 @@ const PDFService = {
         const accent = '#006B3F';
         
         // Background for the top info cluster
-        doc.rect(25, topY, 300, 75).fill(cardBg);
+        doc.rect(25, topY, 320, 80).fill(cardBg);
         
         // App ID & Status
-        doc.fillColor(accent).font('Helvetica-Bold').fontSize(8).text('APPLICATION IDENTIFICATION', 35, topY + 8);
+        doc.fillColor(accent).font('Helvetica-Bold').fontSize(8.5).text('APPLICATION IDENTIFICATION', 35, topY + 8);
         doc.fillColor('#333333').font('Helvetica-Bold').fontSize(11).text(application?.applicationId || 'DRAFT', 35, topY + 18);
         
-        const isGeneralDuty = application?.category === 'GENERAL_DUTY';
-        if (!isGeneralDuty) {
+        if (application?.category !== 'GENERAL_DUTY') {
           doc.fillColor('#666666').font('Helvetica').fontSize(7.5).text('APPLICATION CATEGORY', 35, topY + 36);
-          doc.fillColor('#333333').font('Helvetica-Bold').fontSize(8.5).text((application?.category || 'N/A').replace(/_/g, ' '), 35, topY + 45);
+          doc.fillColor('#333333').font('Helvetica-Bold').fontSize(8.5).text((application?.category || 'N/A').replace(/_/g, ' '), 35, topY + 44);
         }
 
-        doc.fillColor('#666666').font('Helvetica').fontSize(7.5).text('PRE-SCREENING STATUS', 180, topY + 36);
+        doc.fillColor('#666666').font('Helvetica').fontSize(7.5).text('PRE-SCREENING STATUS', 190, topY + 36);
         const appStatus = application?.status || 'DRAFT';
         const isEligible = eligibilityReport ? eligibilityReport.eligible : (appStatus !== 'REJECTED' && appStatus !== 'DISQUALIFIED');
         const displayStatus = isEligible ? 'QUALIFIED' : 'DISQUALIFIED';
-        doc.fillColor(isEligible ? '#006B3F' : '#CE1126').font('Helvetica-Bold').fontSize(9.5).text(displayStatus, 180, topY + 45);
+        doc.fillColor(isEligible ? '#006B3F' : '#CE1126').font('Helvetica-Bold').fontSize(9.5).text(displayStatus, 190, topY + 44);
 
-        // Passport & QR Alignment (Compacted)
+        // Passport & QR Alignment
         if (passportPhoto) {
           try {
             let photoPath = passportPhoto.filePath || passportPhoto.path;
+            logger.info('PDF Gen: Passport photo object found', { 
+              hasFilePath: !!passportPhoto.filePath, 
+              hasPath: !!passportPhoto.path,
+              filePath: passportPhoto.filePath
+            });
+            
             if (photoPath && !path.isAbsolute(photoPath)) {
               photoPath = getAbsolutePath(photoPath);
             }
+            
+            logger.info('PDF Gen: Resolved photo path', { photoPath, exists: photoPath ? fs.existsSync(photoPath) : false });
+
             if (photoPath && fs.existsSync(photoPath)) {
-              doc.image(photoPath, 365, topY, { width: 75, height: 75 });
-              doc.rect(365, topY, 75, 75).lineWidth(1.5).strokeColor(accent).stroke();
+              doc.image(photoPath, 375, topY, { width: 80, height: 80 });
+              doc.rect(375, topY, 80, 80).lineWidth(1.2).strokeColor(accent).stroke();
+            } else {
+              logger.warn('PDF Gen: Passport photo file NOT FOUND at path:', photoPath);
             }
           } catch (err) { logger.error('Photo error:', err); }
+        } else {
+          logger.warn('PDF Gen: No passport photo document provided in data');
         }
 
         if (qrDataUrl && qrDataUrl.includes(',')) {
           try {
             const qrBuffer = Buffer.from(qrDataUrl.split(',')[1], 'base64');
-            doc.image(qrBuffer, 465, topY, { width: 75 });
-            doc.rect(465, topY, 75, 75).lineWidth(0.5).strokeColor('#DDDDDD').stroke();
-            doc.fontSize(6).fillColor('#999999').text('VERIFIED BY GPS', 465, topY + 78, { width: 75, align: 'center' });
+            doc.image(qrBuffer, 465, topY, { width: 80 });
+            doc.rect(465, topY, 80, 80).lineWidth(0.5).strokeColor('#DDDDDD').stroke();
+            doc.fontSize(6).fillColor('#999999').text('VERIFIED BY GPS', 465, topY + 83, { width: 80, align: 'center' });
           } catch (imgErr) { logger.error('QR error', imgErr); }
         }
 
-        doc.y = topY + 85;
+        doc.y = topY + 95;
 
         // --- Sections Logic ---
         const drawSection = (title, fields, columns = 2) => {
-          doc.rect(25, doc.y, 545, 14).fill(accent);
+          // Section Header with Color Block
+          doc.rect(25, doc.y, 545, 15).fill(accent);
           doc.fillColor('white').font('Helvetica-Bold').fontSize(8.5).text(title, 35, doc.y + 3.5);
-          doc.moveDown(0.4);
+          doc.moveDown(0.6);
           
           if (columns === 2) {
             PDFService._drawTwoColumnGrid(doc, fields);
           } else {
             PDFService._drawGrid(doc, fields, 35, 90);
           }
-          doc.moveDown(0.2);
+          doc.moveDown(0.4);
         };
 
         // 1. Personal Information
@@ -148,38 +160,54 @@ const PDFService = {
             ['GENDER', personalInfo.gender],
             ['DATE OF BIRTH', personalInfo.dateOfBirth ? new Date(personalInfo.dateOfBirth).toLocaleDateString('en-GB') : 'N/A'],
             ['NATIONALITY', personalInfo.nationality],
+            ['MARITAL STATUS', personalInfo.maritalStatus],
             ['ID CARD NO.', personalInfo.ghanaCardNumber || 'N/A'],
             ['PHONE', contactInfo.phoneNumber || 'N/A'],
             ['EMAIL', contactInfo.email || 'N/A'],
             ['HOMETOWN', personalInfo.hometown || 'N/A'],
             ['EMERGENCY CONTACT', contactInfo.emergencyContactName?.toUpperCase() || 'N/A'],
-            ['EMERGENCY TEL', contactInfo.emergencyContactPhone || 'N/A']
+            ['EMERGENCY TEL', contactInfo.emergencyContactPhone || 'N/A'],
+            ['RELATION', contactInfo.emergencyContactRelation?.toUpperCase() || 'N/A']
           ];
           drawSection('PERSONAL & CONTACT IDENTIFICATION', fields);
-          
-          doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#666666').text('RESIDENTIAL ADDRESS:', 35);
-          doc.font('Helvetica').fontSize(8.5).fillColor('black').text(contactInfo.residentialAddress || 'N/A', 35, doc.y + 1);
-          doc.moveDown(0.4);
         } catch (err) { logger.error('Personal fields error:', err); }
 
-        // 2. Category Details
+        // 2. Residential
+        try {
+          doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#666666').text('RESIDENTIAL ADDRESS:', 35);
+          doc.font('Helvetica').fontSize(8.5).fillColor('black').text(contactInfo.residentialAddress || 'N/A', 35, doc.y + 0.5);
+          doc.moveDown(0.4);
+        } catch (err) { logger.error('Residential error:', err); }
+
+        // 3. Category Details
         try {
           const cat = application.category;
           const details = application.categoryDetails || {};
           let catFields = [];
 
-          if (application.preferredRegion) catFields.push(['REF. REGION', application.preferredRegion]);
+          if (application.preferredRegion) {
+            catFields.push(['PREFERRED REGION', application.preferredRegion]);
+          }
+          if (application.alternateRegion) {
+            catFields.push(['ALTERNATE REGION', application.alternateRegion]);
+          }
+
           if (cat === 'DRIVERS') {
             catFields.push(['LICENSE CLASS', details.driversLicenseClass]);
             catFields.push(['LICENSE NO.', details.driversLicenseNumber]);
           } else if (cat === 'TRADESMEN') {
             catFields.push(['TRADE', details.subCategory?.replace(/_/g, ' ')]);
             catFields.push(['QUALIFICATION', details.tradeQualification?.replace(/_/g, ' ')]);
+            catFields.push(['EXPERIENCE', `${details.tradeExperienceYears} Years`]);
           } else if (cat === 'MEDICAL_PROFESSIONALS') {
             catFields.push(['SPECIALIZATION', details.subCategory?.replace(/_/g, ' ')]);
+            catFields.push(['QUALIFICATION', details.medicalQualification?.replace(/_/g, ' ')]);
             catFields.push(['PIN/REG NO.', details.professionalRegistrationNumber]);
           } else if (cat === 'RELIGIOUS_AFFAIRS') {
             catFields.push(['DENOMINATION', details.religiousDenomination]);
+            catFields.push(['QUALIFICATION', details.religiousQualification?.replace(/_/g, ' ')]);
+          } else if (cat === 'SPORTSMEN') {
+            catFields.push(['DISCIPLINE', details.sportsDiscipline?.replace(/_/g, ' ')]);
           }
 
           if (catFields.length > 0) {
@@ -187,92 +215,107 @@ const PDFService = {
           }
         } catch (err) { logger.error('Category Details section error:', err); }
 
-        // 3. Education (Compacted)
+        // 4. Education
         try {
           const bece = education.bece;
           const wassceArr = Array.isArray(education.wassce) ? education.wassce : (education.wassce ? [education.wassce] : []);
           const tertiaryArr = Array.isArray(education.tertiary) ? education.tertiary : (education.tertiary ? [education.tertiary] : []);
           
           if (bece || wassceArr.length > 0 || tertiaryArr.length > 0) {
-            doc.rect(25, doc.y, 545, 14).fill(accent);
+            // Header for Education
+            doc.rect(25, doc.y, 545, 15).fill(accent);
             doc.fillColor('white').font('Helvetica-Bold').fontSize(8.5).text('EDUCATIONAL BACKGROUND', 35, doc.y + 3.5);
-            doc.moveDown(0.4);
+            doc.moveDown(0.6);
 
             if (bece) {
+              doc.fillColor(accent).font('Helvetica-Bold').fontSize(8).text('BECE Results', 40);
               const bFields = [
-                ['BECE SCHOOL', bece.schoolName?.toUpperCase()], 
-                ['BECE INDEX', bece.indexNumber],
-                ['COMPLETION', bece.completionYear],
-                ['CERT NO.', bece.certificateNumber]
+                ['SCHOOL', bece.schoolName?.toUpperCase()], 
+                ['YEAR', bece.completionYear],
+                ['INDEX NO.', bece.indexNumber]
               ];
-              PDFService._drawTwoColumnGrid(doc, bFields);
-              doc.moveDown(0.2);
+              PDFService._drawGrid(doc, bFields, 50, 80);
+              doc.moveDown(0.3);
             }
 
-            wassceArr.forEach((w) => {
+            wassceArr.forEach((w, idx) => {
+              doc.fillColor(accent).font('Helvetica-Bold').fontSize(8).text(w.isNovdec ? 'WASSCE (Nov/Dec)' : 'WASSCE/SSCE Certificate Details', 40);
               const wFields = [
-                ['WASSCE SCHOOL', w.schoolName?.toUpperCase()], 
-                ['WASSCE INDEX', w.indexNumber],
-                ['COMPLETION', w.completionYear],
+                ['SCHOOL', w.schoolName?.toUpperCase()], 
+                ['YEAR', w.completionYear],
+                ['INDEX NO.', w.indexNumber],
                 ['CERT NO.', w.certificateNumber]
               ];
-              PDFService._drawTwoColumnGrid(doc, wFields);
+              PDFService._drawGrid(doc, wFields, 50, 80);
               if (Array.isArray(w.results)) {
-                const res = w.results.map(r => `${r.subject.substring(0,10)}: ${r.grade}`).join(' | ');
-                doc.font('Helvetica-Oblique').fontSize(7).fillColor('#666666').text(`Results: ${res}`, 45, doc.y, { width: 500 });
-                doc.moveDown(0.3);
+                // Ensure results are formatted clearly
+                const res = w.results.map(r => `${r.subject}: ${r.grade}`).join('  |  ');
+                doc.font('Helvetica').fontSize(7).fillColor('#444444').text(res, 50, doc.y, { width: 500 });
+                doc.moveDown(0.2);
               }
+              if (idx < wassceArr.length - 1) doc.moveDown(0.1);
             });
 
             tertiaryArr.forEach(t => {
+              doc.moveDown(0.2);
+              doc.fillColor(accent).font('Helvetica-Bold').fontSize(8).text('Tertiary Qualification', 40);
               const tFields = [
                 ['INSTITUTION', t.institutionName?.toUpperCase()],
-                ['QUALIFICATION', t.qualification],
-                ['CLASS', t.classObtained],
-                ['COMPLETION', t.completionYear],
-                ['CERT NO.', t.certificateNumber],
-                ['NSS NO.', t.nationalServiceNumber]
+                ['QUALIFICATION', `${t.qualification} - ${t.courseOfStudy}`],
+                ['CLASS/YEAR', `${t.classObtained} | ${t.completionYear}`],
+                ['CERT/NSS NO.', `${t.certificateNumber} | ${t.nationalServiceNumber}`]
               ];
-              PDFService._drawTwoColumnGrid(doc, tFields);
-              doc.moveDown(0.2);
+              PDFService._drawGrid(doc, tFields, 50, 80);
             });
           }
         } catch (err) { logger.error('Education section error:', err); }
 
-        // 4. Eligibility & Declaration (Combined for space)
+        // 5. Eligibility Report (Reasons for Disqualification)
         try {
           if (eligibilityReport && eligibilityReport.checks) {
-            const failedChecks = eligibilityReport.checks.filter(c => c.status === 'failed');
-            if (failedChecks.length > 0) {
-              doc.rect(25, doc.y, 545, 14).fill('#FFF5F5');
-              doc.fillColor('#C53030').font('Helvetica-Bold').fontSize(8).text('ELIGIBILITY WARNINGS', 35, doc.y + 3.5);
-              doc.moveDown(0.3);
-              failedChecks.forEach(check => {
-                doc.fillColor('#C53030').font('Helvetica').fontSize(7.5).text(`• ${check.name}: ${check.message}`, 45);
-              });
-              doc.moveDown(0.3);
-            }
-          }
+            doc.moveDown(0.3);
+            doc.rect(25, doc.y, 545, 15).fill('#F8F9FA');
+            doc.fillColor('#1F2937').font('Helvetica-Bold').fontSize(8.5).text('ELIGIBILITY PRE-SCREENING REPORT', 35, doc.y + 3.5);
+            doc.moveDown(0.6);
 
-          doc.rect(25, doc.y, 545, 14).fill('#F3F4F6');
-          doc.fillColor('#374151').font('Helvetica-Bold').fontSize(8.5).text('DECLARATION & SIGNATURE', 35, doc.y + 3.5);
-          doc.moveDown(0.4);
+            const failedChecks = eligibilityReport.checks.filter(c => c.status === 'failed');
+            
+            if (failedChecks.length > 0) {
+              doc.fillColor('#CE1126').font('Helvetica-Bold').fontSize(8).text('Potential Reasons for Disqualification:', 40);
+              doc.moveDown(0.2);
+              failedChecks.forEach(check => {
+                doc.fillColor('#CE1126').font('Helvetica').fontSize(7.5).text(`• ${check.name}: ${check.message}`, 50);
+                doc.moveDown(0.1);
+              });
+            } else {
+              doc.fillColor('#006B3F').font('Helvetica-Bold').fontSize(8).text('Applicant meets all baseline eligibility requirements.', 40);
+            }
+            doc.moveDown(0.3);
+          }
+        } catch (err) { logger.error('Eligibility Report section error:', err); }
+
+        // --- Declaration area (Compact) ---
+        try {
+          doc.moveDown(0.5);
+          doc.rect(25, doc.y, 545, 15).fill('#EEEEEE');
+          doc.fillColor('#333333').font('Helvetica-Bold').fontSize(8.5).text('DECLARATION & SIGNATORY', 35, doc.y + 3.5);
+          doc.moveDown(0.6);
           
-          doc.fontSize(7.5).font('Helvetica').fillColor('#4B5563').text(
-            'I certify that all information provided in this application is true and complete. I understand that any false statements or omissions may result in my immediate disqualification from the Ghana Police Service recruitment process.',
+          doc.fontSize(7.5).font('Helvetica').fillColor('#444444').text(
+            'I certify that all information provided in this application is true and complete to the best of my knowledge. I understand that any false statements or omissions may result in my immediate disqualification from the Ghana Police Service recruitment process.',
             { align: 'justify', width: 525 }
           );
           
           doc.moveDown(1.5);
           const fY = doc.y;
-          doc.strokeColor('#D1D5DB').lineWidth(0.5).moveTo(35, fY).lineTo(200, fY).stroke();
-          doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#374151').text('Applicant Signature', 35, fY + 4, { width: 165, align: 'center' });
+          doc.strokeColor('#AAAAAA').lineWidth(0.5).moveTo(35, fY).lineTo(210, fY).stroke();
+          doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#333333').text('Applicant Signature', 35, fY + 4, { width: 175, align: 'center' });
           
-          doc.strokeColor('#D1D5DB').lineWidth(0.5).moveTo(405, fY).lineTo(570, fY).stroke();
-          doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#374151').text('Date Signed', 405, fY + 4, { width: 165, align: 'center' });
+          doc.strokeColor('#AAAAAA').lineWidth(0.5).moveTo(375, fY).lineTo(540, fY).stroke();
+          doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#333333').text('Date Signed', 375, fY + 4, { width: 165, align: 'center' });
           
           // Absolute bottom footer
-          doc.fontSize(6.5).fillColor('#9CA3AF').text('Computer-generated summary via Ghana Police Service Recruitment Portal.', 25, 815, { align: 'center', width: 545 });
+          doc.fontSize(6.5).fillColor('#BBBBBB').text('This document is a computer-generated summary of the electronic application submitted via the Ghana Police Service Portal.', 25, 815, { align: 'center', width: 545 });
         } catch (err) { logger.error('Declaration error:', err); }
 
         doc.end();
@@ -283,19 +326,26 @@ const PDFService = {
     });
   },
   
+  _drawSectionHeader(doc, title) {
+    // Utility for generic headers if needed, but we use inline custom blocks now
+    doc.fillColor('#006B3F').font('Helvetica-Bold').fontSize(10).text(title);
+    doc.strokeColor('#006B3F').lineWidth(1).moveTo(40, doc.y + 1).lineTo(555, doc.y + 1).stroke();
+    doc.moveDown(0.4);
+  },
+
   _drawTwoColumnGrid(doc, fields) {
     const startX = 35;
     const col2X = 300;
-    const labelW = 85;
-    const rowH = 11.5;
+    const labelW = 75;
+    const rowH = 11;
     
     fields.forEach((f, i) => {
       const isEven = i % 2 === 0;
       const x = isEven ? startX : col2X;
       const y = doc.y;
       
-      doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#6B7280').text(`${f[0]}:`, x, y, { width: labelW });
-      doc.font('Helvetica-Bold').fontSize(8).fillColor('#111827').text(String(f[1] || 'N/A'), x + labelW, y, { width: 175 });
+      doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#777777').text(`${f[0]}:`, x, y, { width: labelW });
+      doc.font('Helvetica-Bold').fontSize(8).fillColor('#222222').text(String(f[1] || 'N/A'), x + labelW, y, { width: 175 });
       
       if (!isEven || i === fields.length - 1) doc.y = y + rowH;
     });
@@ -304,9 +354,9 @@ const PDFService = {
   _drawGrid(doc, fields, startX, labelW) {
     fields.forEach(f => {
       const y = doc.y;
-      doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#6B7280').text(`${f[0]}:`, startX, y, { width: labelW });
-      doc.font('Helvetica-Bold').fontSize(8).fillColor('#111827').text(String(f[1] || 'N/A'), startX + labelW, y, { width: 350 });
-      doc.y = y + 10.5;
+      doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#777777').text(`${f[0]}:`, startX, y, { width: labelW });
+      doc.font('Helvetica-Bold').fontSize(8).fillColor('#222222').text(String(f[1] || 'N/A'), startX + labelW, y, { width: 350 });
+      doc.y = y + 10;
     });
   }
 };
