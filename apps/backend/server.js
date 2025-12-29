@@ -17,12 +17,15 @@ initializeWebSocket(httpServer);
 // Start server
 const startServer = async () => {
   try {
+    const HOST = '0.0.0.0';
     // Start listening immediately so health checks pass on Render
-    httpServer.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`);
+    httpServer.listen(PORT, HOST, () => {
+      logger.info(`Server running on ${HOST}:${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
 
+    logger.info('Initializing background services...');
+    
     // Initialize connections in parallel
     const [dbResult, redisResult] = await Promise.allSettled([
       connectDatabase(),
@@ -32,16 +35,17 @@ const startServer = async () => {
     if (dbResult.status === 'fulfilled') {
       logger.info('PostgreSQL connected successfully');
     } else {
-      logger.error('PostgreSQL connection failed during startup:', dbResult.reason.message);
+      logger.error('PostgreSQL connection failed during startup:', dbResult.reason.message || dbResult.reason);
     }
 
     if (redisResult.status === 'fulfilled') {
       logger.info('Redis connected successfully');
     } else {
-      logger.error('Redis connection failed during startup:', redisResult.reason.message);
+      logger.error('Redis connection failed during startup:', redisResult.reason.message || redisResult.reason);
     }
 
     logger.info(`CORS Allowed Origins: ${process.env.CORS_ORIGIN || 'None (using defaults)'}`);
+    logger.info('Server is fully initialized and ready to handle requests');
   } catch (error) {
     logger.error('Unexpected error during startup:', error);
     // Prefer to stay alive so we can log errors, but if it's a critical port error, we exit
