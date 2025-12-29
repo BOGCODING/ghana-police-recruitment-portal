@@ -100,10 +100,12 @@ export default function ApplicationSummary() {
                 <span className={styles.label}>Status:</span>
                 <span className={styles.value}>{application.status}</span>
               </div>
-              <div className={styles.infoRow}>
-                <span className={styles.label}>Category:</span>
-                <span className={styles.value}>{application.category}</span>
-              </div>
+              {application.category !== 'GENERAL_DUTY' && (
+                <div className={styles.infoRow}>
+                  <span className={styles.label}>Category:</span>
+                  <span className={styles.value}>{application.category}</span>
+                </div>
+              )}
               <div className={styles.infoRow}>
                 <span className={styles.label}>Date Submitted:</span>
                 <span className={styles.value}>{application.submittedAt ? format(new Date(application.submittedAt), 'PPP') : 'N/A'}</span>

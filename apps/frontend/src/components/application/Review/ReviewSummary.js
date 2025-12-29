@@ -87,10 +87,12 @@ export default function ReviewSummary() {
       ])}
 
 
-      {renderSection('Position & Category', 3, formData, [
-        { label: 'Category', value: formData.category },
-        { label: 'Sub Category', value: formData.subCategory },
-        { label: 'Specialization', value: formData.specialization },
+      {renderSection(formData.category === 'GENERAL_DUTY' ? 'Application Details' : 'Position & Category', 3, formData, [
+        ...(formData.category !== 'GENERAL_DUTY' ? [{ label: 'Category', value: formData.category }] : []),
+        ...(formData.category !== 'GENERAL_DUTY' ? [
+          { label: 'Sub Category', value: formData.subCategory },
+          { label: 'Specialization', value: formData.specialization }
+        ] : []),
         { label: 'Preferred Region', value: formData.preferredRegion },
         { label: 'Alternate Region', value: formData.alternateRegion },
         // Dynamic Category Details

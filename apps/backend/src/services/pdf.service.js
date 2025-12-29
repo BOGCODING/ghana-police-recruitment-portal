@@ -90,10 +90,12 @@ const PDFService = {
         doc.fillColor(accent).font('Helvetica-Bold').fontSize(9).text('APPLICATION IDENTIFICATION', 45, topY + 10);
         doc.fillColor('#333333').font('Helvetica-Bold').fontSize(12).text(application?.applicationId || 'DRAFT', 45, topY + 22);
         
-        doc.fillColor('#666666').font('Helvetica').fontSize(8).text('APPLICATION CATEGORY', 45, topY + 42);
-        doc.fillColor('#333333').font('Helvetica-Bold').fontSize(9).text((application?.category || 'N/A').replace(/_/g, ' '), 45, topY + 52);
+        if (application?.category !== 'GENERAL_DUTY') {
+          doc.fillColor('#666666').font('Helvetica').fontSize(8).text('APPLICATION CATEGORY', 45, topY + 42);
+          doc.fillColor('#333333').font('Helvetica-Bold').fontSize(9).text((application?.category || 'N/A').replace(/_/g, ' '), 45, topY + 52);
+        }
 
-        doc.fillColor('#666666').font('Helvetica').fontSize(8).text('SUBMISSION STATUS', 200, topY + 42);
+        doc.fillColor('#666666').font('Helvetica').fontSize(8).text('PRE-SCREENING STATUS', 200, topY + 42);
         const appStatus = application?.status || 'DRAFT';
         const isEligible = eligibilityReport ? eligibilityReport.eligible : (appStatus !== 'REJECTED' && appStatus !== 'DISQUALIFIED');
         const displayStatus = isEligible ? 'QUALIFIED' : 'DISQUALIFIED';
