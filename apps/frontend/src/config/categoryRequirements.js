@@ -22,9 +22,7 @@ export const CATEGORY_REQUIREMENTS = {
     educationLevels: ['BECE', 'WASSCE'],
     showTertiaryForm: false,
     additionalDocuments: [],
-    optionalDocuments: [
-      { key: 'driversLicense', label: "Driver's License", accept: 'image/*,application/pdf' },
-    ]
+    optionalDocuments: []
   },
   
   TRADESMEN: {
