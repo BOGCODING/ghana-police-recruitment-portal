@@ -478,6 +478,16 @@ const saveDeclaration = async (req, res) => {
   try {
     const data = req.body;
     
+    // Auto-populate individual fields if acceptsDeclarations is true
+    if (data.acceptsDeclarations === true) {
+      data.hasNoCriminalRecord = true;
+      data.hasNotBeenDismissed = true;
+      data.isGhanaianByBirth = true;
+      data.isOfGoodCharacter = true;
+      data.isPhysicallyFit = true;
+      data.acceptsTerms = true;
+    }
+    
     const appResult = await query(
       'SELECT id FROM applications WHERE "applicantId" = $1',
       [req.user.id]
