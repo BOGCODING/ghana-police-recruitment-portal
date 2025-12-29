@@ -250,10 +250,11 @@ const PDFService = {
               if (Array.isArray(w.results)) {
                 // Ensure results are formatted clearly
                 const res = w.results.map(r => `${r.subject}: ${r.grade}`).join('  |  ');
-                doc.font('Helvetica').fontSize(6.5).fillColor('#444444').text(res, 50, doc.y, { width: 500 });
-                doc.moveDown(0.2);
+                // Increased font size for readability
+                doc.font('Helvetica-Bold').fontSize(7.5).fillColor('#222222').text(res, 50, doc.y, { width: 500 });
+                doc.moveDown(0.15);
               }
-              if (idx < wassceArr.length - 1) doc.moveDown(0.1);
+              if (idx < wassceArr.length - 1) doc.moveDown(0.05);
             });
 
             tertiaryArr.forEach(t => {
