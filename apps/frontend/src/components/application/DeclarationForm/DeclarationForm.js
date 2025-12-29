@@ -1,31 +1,6 @@
 import styles from './DeclarationForm.module.css';
 
-const DECLARATION_ITEMS = [
-  { 
-    id: 'hasNoCriminalRecord', 
-    label: 'I confirm that I have no criminal record in Ghana or any other country.' 
-  },
-  { 
-    id: 'hasNotBeenDismissed', 
-    label: 'I declare that I have not been dismissed from any public or private service for misconduct.' 
-  },
-  { 
-    id: 'isGhanaianByBirth', 
-    label: 'I confirm that I am a Ghanaian citizen by birth.' 
-  },
-  { 
-    id: 'isOfGoodCharacter', 
-    label: 'I declare that I am of good character and have never been associated with any subversive activities.' 
-  },
-  { 
-    id: 'isPhysicallyFit', 
-    label: 'I declare that I am physically and mentally fit to undergo the rigorous training required by the Ghana Police Service.' 
-  },
-  { 
-    id: 'acceptsTerms', 
-    label: 'I have read, understood and agree to the Terms and Conditions of the recruitment process.' 
-  }
-];
+// Simplified to a single statement in the component body
 
 export default function DeclarationForm({ register, errors }) {
   const currentDate = new Date().toLocaleDateString('en-GB', {
@@ -46,24 +21,22 @@ export default function DeclarationForm({ register, errors }) {
       </div>
 
       <div className={styles.declarationList}>
-        {DECLARATION_ITEMS.map((item) => (
-          <label key={item.id} className={styles.checkboxLabel}>
-            <input 
-              type="checkbox" 
-              {...register(item.id)} 
-              className={styles.checkbox}
-            />
-            <span className={styles.labelText}>{item.label}</span>
-          </label>
-        ))}
-        {/* Hard block removed to allow soft-fail */}
-        {(errors.hasNoCriminalRecord || 
-          errors.hasNotBeenDismissed || 
-          errors.isGhanaianByBirth || 
-          errors.isOfGoodCharacter || 
-          errors.isPhysicallyFit || 
-          errors.acceptsTerms) && (
-          <p className={styles.warningMessage}>Note: Not confirming all declarations will affect your final eligibility status.</p>
+        <label className={styles.checkboxLabel}>
+          <input 
+            type="checkbox" 
+            {...register('acceptsDeclarations')} 
+            className={styles.checkbox}
+          />
+          <span className={styles.labelText}>
+            I hereby declare that I am a Ghanaian citizen by birth, of good character, 
+            physically and mentally fit for police training, have no criminal record, 
+            and have never been dismissed from any public or private service for misconduct. 
+            I also agree to the Terms and Conditions of this recruitment process.
+          </span>
+        </label>
+        
+        {errors.acceptsDeclarations && (
+          <p className={styles.warningMessage}>{errors.acceptsDeclarations.message || 'You should confirm this declaration to proceed.'}</p>
         )}
       </div>
 

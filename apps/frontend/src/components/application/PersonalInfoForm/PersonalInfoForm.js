@@ -164,6 +164,7 @@ export default function PersonalInfoForm() {
         />
         <Input 
           label="Nationality" 
+          value="GHANAIAN"
           {...register('nationality', { required: 'Nationality is required' })} 
           error={errors.nationality?.message}
         />
