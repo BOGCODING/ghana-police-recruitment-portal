@@ -133,15 +133,6 @@ export default function HomePage() {
                 View Requirements
               </motion.span>
             </Link>
-            <Link href="/login">
-              <motion.span 
-                className={styles.btnLogin}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Login to Portal
-              </motion.span>
-            </Link>
           </motion.div>
         </motion.div>
 

@@ -116,17 +116,6 @@
   backdrop-filter: blur(8px);
 }
 
-.btnLogin {
-  padding: 1rem 2rem;
-  background: white;
-  color: #001F3F;
-  font-weight: 700;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
 .btnSecondary:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: white;
