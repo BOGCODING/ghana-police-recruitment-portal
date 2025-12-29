@@ -592,7 +592,7 @@ const getApplicationSummary = async (req, res) => {
       query('SELECT * FROM personal_info WHERE "applicationId" = $1', [appId]),
       query('SELECT * FROM contact_info WHERE "applicationId" = $1', [appId]),
       EducationModel.getFullEducation(appId),
-      query('SELECT * FROM documents WHERE "applicationId" = $1 AND "documentType" = $2', [appId, 'passportPhoto'])
+      query('SELECT * FROM documents WHERE "applicationId" = $1 AND "documentType" IN ($2, $3)', [appId, 'PASSPORT_PHOTO', 'passportPhoto'])
     ]);
     
     return successResponse(res, {
@@ -636,7 +636,7 @@ const downloadPDF = async (req, res) => {
     const [personalInfo, contactInfo, documents] = await Promise.all([
       query('SELECT * FROM personal_info WHERE "applicationId" = $1', [appId]),
       query('SELECT * FROM contact_info WHERE "applicationId" = $1', [appId]),
-      query('SELECT * FROM documents WHERE "applicationId" = $1 AND "documentType" = $2', [appId, 'passportPhoto'])
+      query('SELECT * FROM documents WHERE "applicationId" = $1 AND "documentType" IN ($2, $3)', [appId, 'PASSPORT_PHOTO', 'passportPhoto'])
     ]);
 
     const fullEducation = await EducationModel.getFullEducation(appId);

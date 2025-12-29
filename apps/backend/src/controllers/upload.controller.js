@@ -30,10 +30,10 @@ const uploadDocument = async (req, res) => {
 
     // Check if this document type already exists and delete it (optional, based on requirement)
     // For Passport Photo, we usually want only one.
-    if (documentType === 'passportPhoto') {
+    if (documentType === 'PASSPORT_PHOTO' || documentType === 'passportPhoto') {
       const existing = await query(
-        'SELECT "filePath", id FROM documents WHERE "applicationId" = $1 AND "documentType" = $2',
-        [appId, 'passportPhoto']
+        'SELECT "filePath", id FROM documents WHERE "applicationId" = $1 AND "documentType" IN ($2, $3)',
+        [appId, 'PASSPORT_PHOTO', 'passportPhoto']
       );
       if (existing.rows.length > 0) {
         deleteFile(existing.rows[0].filePath);
@@ -56,10 +56,10 @@ const uploadDocument = async (req, res) => {
       RETURNING *`,
       [
         appId,
-        documentType || 'OTHER',
+        (documentType === 'passportPhoto' ? 'PASSPORT_PHOTO' : documentType) || 'OTHER',
         req.file.filename,
         req.file.originalname,
-        req.file.processedPath || req.file.path, // Store processed path if exists (e.g. for passport)
+        req.file.processedPath || req.file.dbPath || req.file.path, // Store processed path if exists, otherwise dbPath (relative)
         req.file.mimetype,
         req.file.size,
         description

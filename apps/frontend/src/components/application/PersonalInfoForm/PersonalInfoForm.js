@@ -37,7 +37,9 @@ export default function PersonalInfoForm() {
   // Normalize snake_case data from backend to camelCase for form state
   const getNormalizedDefaultValues = useCallback(() => {
     const data = formData.personalInfo || {};
-    const passportDoc = formData.documents?.find(doc => doc.documentType === 'passportPhoto');
+    const passportDoc = formData.documents?.find(doc => 
+      doc.documentType === 'PASSPORT_PHOTO' || doc.documentType === 'passportPhoto'
+    );
 
     const getPassportUrl = () => {
       const url = passportDoc?.url || '';

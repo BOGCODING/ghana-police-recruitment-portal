@@ -8,46 +8,46 @@ const logger = require('../utils/logger');
 
 // Allowed file types per document category
 const FILE_TYPES = {
-  passportPhoto: {
+  PASSPORT_PHOTO: {
     mimeTypes: ['image/jpeg', 'image/png'],
     extensions: ['.jpg', '.jpeg', '.png'],
-    maxSize: 2 * 1024 * 1024, // 2MB
+    maxSize: 1 * 1024 * 1024, // 1MB
     dimensions: { minWidth: 400, minHeight: 400, maxWidth: 2000, maxHeight: 2000 }
   },
   birthCertificate: {
     mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     extensions: ['.jpg', '.jpeg', '.png', '.pdf'],
-    maxSize: 5 * 1024 * 1024 // 5MB
+    maxSize: 1 * 1024 * 1024 // 1MB
   },
   wassceCertificate: {
     mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     extensions: ['.jpg', '.jpeg', '.png', '.pdf'],
-    maxSize: 5 * 1024 * 1024
+    maxSize: 1 * 1024 * 1024
   },
   ghanaCard: {
     mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     extensions: ['.jpg', '.jpeg', '.png', '.pdf'],
-    maxSize: 5 * 1024 * 1024
+    maxSize: 1 * 1024 * 1024
   },
   tertiaryCertificate: {
     mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     extensions: ['.jpg', '.jpeg', '.png', '.pdf'],
-    maxSize: 5 * 1024 * 1024
+    maxSize: 1 * 1024 * 1024
   },
   professionalCert: {
     mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     extensions: ['.jpg', '.jpeg', '.png', '.pdf'],
-    maxSize: 5 * 1024 * 1024
+    maxSize: 1 * 1024 * 1024
   },
   nationalService: {
     mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     extensions: ['.jpg', '.jpeg', '.png', '.pdf'],
-    maxSize: 5 * 1024 * 1024
+    maxSize: 1 * 1024 * 1024
   },
   default: {
     mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     extensions: ['.jpg', '.jpeg', '.png', '.pdf'],
-    maxSize: 5 * 1024 * 1024
+    maxSize: 1 * 1024 * 1024
   }
 };
 
@@ -199,8 +199,11 @@ const validateUploadedFile = async (req, res, next) => {
     const finalPath = path.join(UPLOAD_DIRS.documents, finalFilename);
     fs.renameSync(req.file.path, finalPath);
 
-    // Store relative paths for database portability
-    req.file.path = `documents/${finalFilename}`;
+    // Keep absolute path for subsequent middleware processing
+    req.file.path = finalPath;
+    
+    // Store relative paths for database portability - use new properties to avoid confusion
+    req.file.dbPath = `documents/${finalFilename}`;
     req.file.url = `/uploads/documents/${finalFilename}`;
     req.file.documentType = documentType;
 
@@ -215,7 +218,7 @@ const validateUploadedFile = async (req, res, next) => {
  */
 const processPassportPhoto = async (req, res, next) => {
   try {
-    if (!req.file || req.body.documentType !== 'passportPhoto') {
+    if (!req.file || (req.body.documentType !== 'PASSPORT_PHOTO' && req.body.documentType !== 'passportPhoto')) {
       return next();
     }
 

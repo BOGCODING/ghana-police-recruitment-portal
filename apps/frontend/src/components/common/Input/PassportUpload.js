@@ -26,7 +26,7 @@ export default function PassportUpload({ onChange, value, error }) {
   useEffect(() => {
     // Check if passport exists in documents
     if (!preview && formData.documents) {
-        const passport = formData.documents.find(d => d.documentType === 'passportPhoto');
+        const passport = formData.documents.find(d => d.documentType === 'PASSPORT_PHOTO' || d.documentType === 'passportPhoto');
         if (passport) {
             setPreview(passport.url);
             if (onChange) onChange(passport);
@@ -60,7 +60,7 @@ export default function PassportUpload({ onChange, value, error }) {
 
       const uploadData = new FormData();
       uploadData.append('file', croppedFile);
-      uploadData.append('documentType', 'passportPhoto');
+      uploadData.append('documentType', 'PASSPORT_PHOTO');
       
       // Update preview immediately
       const objectUrl = URL.createObjectURL(croppedBlob);
@@ -76,7 +76,7 @@ export default function PassportUpload({ onChange, value, error }) {
        // Normalize snake_case response to camelCase for consistent state
        const normalizedDoc = {
         id: uploadedDoc.id,
-        documentType: 'passportPhoto',
+        documentType: 'PASSPORT_PHOTO',
         filename: uploadedDoc.filename,
         originalName: uploadedDoc.original_name || uploadedDoc.originalName,
         filePath: uploadedDoc.file_path || uploadedDoc.filePath,
@@ -87,7 +87,7 @@ export default function PassportUpload({ onChange, value, error }) {
 
       // Update global documents state
       const existingDocs = formData.documents || [];
-      const otherDocs = existingDocs.filter(d => d.documentType !== 'passportPhoto');
+      const otherDocs = existingDocs.filter(d => d.documentType !== 'PASSPORT_PHOTO' && d.documentType !== 'passportPhoto');
       updateStepData('documents', [...otherDocs, normalizedDoc]);
 
       if (onChange) {

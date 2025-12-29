@@ -34,7 +34,7 @@ const query = async (text, params) => {
     logger.debug(`Query executed in ${duration}ms: ${text.substring(0, 100)}...`);
     return result;
   } catch (error) {
-    logger.error('Query error:', error.message);
+    logger.error(`Query error: ${error.message}`, { stack: error.stack, text });
     throw error;
   }
 };

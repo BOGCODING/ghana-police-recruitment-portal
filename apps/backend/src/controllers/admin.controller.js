@@ -543,7 +543,7 @@ const getAllApplications = async (req, res) => {
               app."currentStep", app."submittedAt", app."createdAt",
               a.email, a."phoneNumber", a."serialNumber",
               pi."firstName", pi."lastName", pi."dateOfBirth",
-              (SELECT "filePath" FROM documents WHERE "applicationId" = app.id AND "documentType" = 'passportPhoto' LIMIT 1) as "passportPhotoPath"
+              (SELECT "filePath" FROM documents WHERE "applicationId" = app.id AND "documentType" IN ('PASSPORT_PHOTO', 'passportPhoto') LIMIT 1) as "passportPhotoPath"
        FROM applications app
        LEFT JOIN applicants a ON app."applicantId" = a.id
        LEFT JOIN personal_info pi ON app.id = pi."applicationId"
@@ -615,7 +615,7 @@ const getApplicationById = async (req, res) => {
 
     
     // Find passport photo
-    const passportPhoto = documents.rows.find(d => d.documentType === 'passportPhoto');
+    const passportPhoto = documents.rows.find(d => d.documentType === 'PASSPORT_PHOTO' || d.documentType === 'passportPhoto');
 
     // Generate eligibility report for admin
     const eligibility = ApplicationService.checkEligibility({
