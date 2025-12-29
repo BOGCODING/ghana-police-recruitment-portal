@@ -190,3 +190,74 @@
     padding: 0;
   }
 }
+
+.eligibilitySection {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-green);
+}
+
+.eligibilitySection h4 {
+  margin-bottom: 1rem;
+  color: var(--gray-800);
+}
+
+.eligibilityGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.eligibilityItem {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+}
+
+.checkHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.checkName {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.checkStatus {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.statusPassed {
+  background: #e6f4ea;
+  color: #1e8e3e;
+}
+
+.statusFailed {
+  background: #fce8e6;
+  color: #d93025;
+}
+
+.checkMessage {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
+.warningMessage {
+  color: #d93025;
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}

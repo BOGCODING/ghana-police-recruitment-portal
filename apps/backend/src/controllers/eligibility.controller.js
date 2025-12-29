@@ -1,5 +1,5 @@
 const { query } = require('../config/database');
-const { checkEligibility } = require('../services/eligibility.service');
+const EligibilityService = require('../services/eligibility.service');
 const { successResponse, errorResponse } = require('../utils/responseHandler');
 const logger = require('../utils/logger');
 
@@ -34,7 +34,7 @@ const getEligibilityStatus = async (req, res) => {
     };
 
 
-    const report = checkEligibility(data);
+    const report = EligibilityService.check(data);
 
     return successResponse(res, report, 'Eligibility status retrieved');
 
@@ -63,7 +63,7 @@ const performPreCheck = async (req, res) => {
     };
 
 
-    const report = checkEligibility(mockData);
+    const report = EligibilityService.check(mockData);
     return successResponse(res, report, 'Pre-check completed');
   } catch (error) {
     return errorResponse(res, 'Pre-check failed', 500);

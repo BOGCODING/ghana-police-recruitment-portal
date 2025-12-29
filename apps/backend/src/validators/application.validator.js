@@ -16,8 +16,7 @@ const personalInfoSchema = Joi.object({
     .messages({ 'any.required': 'Date of birth is required' }),
   gender: Joi.string().valid('MALE', 'FEMALE').required(),
   maritalStatus: Joi.string().valid('SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED').required(),
-  nationality: Joi.string().valid('GHANAIAN').required()
-    .messages({ 'any.only': 'Applicant must be Ghanaian by birth' }),
+  nationality: Joi.string().required(),
   hometown: Joi.string().max(100).required(),
   region: Joi.string().valid(...REGIONS.map(r => r.code)).required(),
   ghanaCardNumber: Joi.string().max(20).required()
@@ -170,16 +169,12 @@ const categorySelectionSchema = Joi.object({
 
 // Declaration Schema
 const declarationSchema = Joi.object({
-  hasNoCriminalRecord: Joi.boolean().valid(true).required()
-    .messages({ 'any.only': 'You must confirm you have no criminal record' }),
-  hasNotBeenDismissed: Joi.boolean().valid(true).required()
-    .messages({ 'any.only': 'You must confirm you have not been dismissed from public service' }),
-  isGhanaianByBirth: Joi.boolean().valid(true).required()
-    .messages({ 'any.only': 'You must confirm you are Ghanaian by birth' }),
-  isOfGoodCharacter: Joi.boolean().valid(true).required(),
-  isPhysicallyFit: Joi.boolean().valid(true).required(),
-  acceptsTerms: Joi.boolean().valid(true).required()
-    .messages({ 'any.only': 'You must accept the terms and conditions' }),
+  hasNoCriminalRecord: Joi.boolean().required(),
+  hasNotBeenDismissed: Joi.boolean().required(),
+  isGhanaianByBirth: Joi.boolean().required(),
+  isOfGoodCharacter: Joi.boolean().required(),
+  isPhysicallyFit: Joi.boolean().required(),
+  acceptsTerms: Joi.boolean().required(),
   declarationDate: Joi.date().default(Date.now)
 });
 

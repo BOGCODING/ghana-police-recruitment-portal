@@ -12,6 +12,7 @@ const { sendApplicationSubmissionConfirmation } = require('../services/email.ser
 const logger = require('../utils/logger');
 const EducationModel = require('../models/Education.model');
 const PersonalInfoModel = require('../models/PersonalInfo.model');
+const EligibilityService = require('../services/eligibility.service');
 
 /**
  * Get application status
@@ -64,12 +65,20 @@ const getFullApplication = async (req, res) => {
     // Get full education record (including BECE, WASSCE, Tertiary)
     const fullEducation = await EducationModel.getFullEducation(appId);
     
+    // Get eligibility report
+    const eligibilityReport = EligibilityService.check({
+      application: appResult.rows[0],
+      personalInfo: personalInfo.rows[0],
+      education: fullEducation
+    });
+    
     return successResponse(res, {
       ...appResult.rows[0],
       personalInfo: personalInfo.rows[0] || null,
       contactInfo: contactInfo.rows[0] || null,
       education: fullEducation,
-      documents: documents.rows.map(formatDocument)
+      documents: documents.rows.map(formatDocument),
+      eligibilityReport
     });
 
     
@@ -400,9 +409,13 @@ const saveCategory = async (req, res) => {
         max = specificReq.max;
       }
       
+      /* Removed hard block for age requirement to allow soft-fail */
+      logger.info('Age verification skipped (soft-fail):', { age, min, max, category });
+      /*
       if (age < min || age > max) {
         return errorResponse(res, `Age requirement not met for ${category.replace(/_/g, ' ')}. Required: ${min}-${max} years. Current: ${age} years.`, 400);
       }
+      */
     }
     
     await query(
@@ -595,12 +608,20 @@ const getApplicationSummary = async (req, res) => {
       query('SELECT * FROM documents WHERE "applicationId" = $1 AND "documentType" IN ($2, $3)', [appId, 'PASSPORT_PHOTO', 'passportPhoto'])
     ]);
     
+    // Get eligibility report
+    const eligibilityReport = EligibilityService.check({
+      application: appResult.rows[0],
+      personalInfo: personalInfo.rows[0],
+      education: fullEducation
+    });
+    
     return successResponse(res, {
       ...appResult.rows[0],
       personalInfo: personalInfo.rows[0] || null,
       contactInfo: contactInfo.rows[0] || null,
       education: fullEducation,
-      passportPhoto: formatDocument(documents.rows[0])
+      passportPhoto: formatDocument(documents.rows[0]),
+      eligibilityReport
     });
 
     

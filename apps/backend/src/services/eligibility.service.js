@@ -107,13 +107,39 @@ const EligibilityService = {
       const nationalityCheck = {
         name: 'Nationality',
         value: personalInfo.nationality,
-        status: personalInfo.nationality.toUpperCase() === 'GHANAIAN' ? 'passed' : 'failed',
-        message: personalInfo.nationality.toUpperCase() === 'GHANAIAN' 
+        status: (personalInfo.nationality.toUpperCase() === 'GHANAIAN' || personalInfo.nationality.toUpperCase() === 'GHANA') ? 'passed' : 'failed',
+        message: (personalInfo.nationality.toUpperCase() === 'GHANAIAN' || personalInfo.nationality.toUpperCase() === 'GHANA')
           ? 'Applicant is a Ghanaian citizen' 
-          : 'Only Ghanaian citizens are eligible'
+          : 'Only Ghanaian citizens are typically eligible'
       };
       report.checks.push(nationalityCheck);
       if (nationalityCheck.status === 'failed') report.eligible = false;
+    }
+
+    // 5. Declarations Check
+    if (application.declaration) {
+      const decl = typeof application.declaration === 'string' 
+        ? JSON.parse(application.declaration) 
+        : application.declaration;
+      
+      const missingDeclarations = [];
+      if (!decl.hasNoCriminalRecord) missingDeclarations.push('Criminal Record');
+      if (!decl.hasNotBeenDismissed) missingDeclarations.push('Dismissal from Service');
+      if (!decl.isGhanaianByBirth) missingDeclarations.push('Ghanaian by Birth');
+      if (!decl.isOfGoodCharacter) missingDeclarations.push('Good Character');
+      if (!decl.isPhysicallyFit) missingDeclarations.push('Physical Fitness');
+      if (!decl.acceptsTerms) missingDeclarations.push('Terms Acceptance');
+
+      const declCheck = {
+        name: 'Mandatory Declarations',
+        value: missingDeclarations.length === 0 ? 'All confirmed' : `${6 - missingDeclarations.length}/6 confirmed`,
+        status: missingDeclarations.length === 0 ? 'passed' : 'failed',
+        message: missingDeclarations.length === 0 
+          ? 'All mandatory declarations confirmed' 
+          : `Missing confirmation for: ${missingDeclarations.join(', ')}`
+      };
+      report.checks.push(declCheck);
+      if (declCheck.status === 'failed') report.eligible = false;
     }
 
     return report;

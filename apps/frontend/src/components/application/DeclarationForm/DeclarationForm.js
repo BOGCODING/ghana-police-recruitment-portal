@@ -56,13 +56,14 @@ export default function DeclarationForm({ register, errors }) {
             <span className={styles.labelText}>{item.label}</span>
           </label>
         ))}
+        {/* Hard block removed to allow soft-fail */}
         {(errors.hasNoCriminalRecord || 
           errors.hasNotBeenDismissed || 
           errors.isGhanaianByBirth || 
           errors.isOfGoodCharacter || 
           errors.isPhysicallyFit || 
           errors.acceptsTerms) && (
-          <p className={styles.errorMessage}>You must agree to all declarations to proceed.</p>
+          <p className={styles.warningMessage}>Note: Not confirming all declarations will affect your final eligibility status.</p>
         )}
       </div>
 

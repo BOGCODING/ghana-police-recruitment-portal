@@ -221,6 +221,26 @@ export default function ApplicationSummary() {
           </section>
         )}
 
+        {data.eligibilityReport && (
+          <div className={styles.eligibilitySection}>
+            <h4>Eligibility Pre-screening Report</h4>
+            <div className={styles.eligibilityGrid}>
+              {data.eligibilityReport.checks.map((check, index) => (
+                <div key={index} className={styles.eligibilityItem}>
+                  <div className={styles.checkHeader}>
+                    <span className={styles.checkName}>{check.name}</span>
+                    <span className={`${styles.checkStatus} ${check.status === 'passed' ? styles.statusPassed : styles.statusFailed}`}>
+                      {check.status}
+                    </span>
+                  </div>
+                  <span className={styles.checkMetadata}>{check.value}</span>
+                  <p className={styles.checkMessage}>{check.message}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <footer className={styles.declaration}>
           <p><strong>Declaration:</strong> I hereby declare that all information provided is true and correct.</p>
           <div className={styles.signatureRow}>

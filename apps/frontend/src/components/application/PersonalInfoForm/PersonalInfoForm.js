@@ -164,9 +164,8 @@ export default function PersonalInfoForm() {
         />
         <Input 
           label="Nationality" 
-          value="GHANAIAN"
-          readOnly
-          {...register('nationality')} 
+          {...register('nationality', { required: 'Nationality is required' })} 
+          error={errors.nationality?.message}
         />
         <Select
           label="Region of Origin*"
@@ -191,14 +190,7 @@ export default function PersonalInfoForm() {
           step="0.1"
           {...register('heightCm', { 
             required: 'Height is required',
-            min: { 
-              value: watch('gender') === 'MALE' ? 173 : watch('gender') === 'FEMALE' ? 163 : 100, 
-              message: watch('gender') === 'MALE' 
-                ? 'Minimum height for males is 173cm' 
-                : watch('gender') === 'FEMALE' 
-                  ? 'Minimum height for females is 163cm' 
-                  : 'Minimum height is 100cm' 
-            },
+            min: { value: 100, message: 'Minimum height is 100cm' },
             max: { value: 250, message: 'Maximum height is 250cm' }
           })} 
           error={errors.heightCm?.message} 
