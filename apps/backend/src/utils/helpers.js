@@ -89,7 +89,7 @@ const toUpperCase = (str) => {
  */
 const formatDocument = (doc) => {
   if (!doc) return null;
-  const baseUrl = process.env.API_URL || 'http://localhost:5000';
+  const baseUrl = (process.env.API_URL || '').trim().replace(/\/+$/, '') || 'http://localhost:5000';
   return {
     ...doc,
     url: `${baseUrl}/uploads/${doc.filePath.replace(/\\/g, '/')}`
