@@ -4,6 +4,7 @@ import PageTransition from '@/components/animations/PageTransition';
 import styles from './layout.module.css';
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://recruitment.police.gov.gh'),
   // ... existing metadata ...
   title: {
     template: '%s | Ghana Police Recruitment',

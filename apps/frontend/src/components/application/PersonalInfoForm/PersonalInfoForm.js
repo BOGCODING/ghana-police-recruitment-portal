@@ -37,11 +37,22 @@ export default function PersonalInfoForm() {
   // Normalize snake_case data from backend to camelCase for form state
   const getNormalizedDefaultValues = useCallback(() => {
     const data = formData.personalInfo || {};
-    // Check for existing passport photo in documents
-    const passportDoc = formData.documents?.find(d => d.documentType === 'passportPhoto');
-    
+    const passportDoc = formData.documents?.find(doc => doc.documentType === 'passportPhoto');
+
+    const getPassportUrl = () => {
+      const url = passportDoc?.url || '';
+      // If it's a relative path start with /uploads, return as is
+      if (url.startsWith('/uploads')) return url;
+      // If it contains /uploads and is a full URL, attempt to extract the relative portion
+      // This helps when switching between local (localhost:5000/uploads) and production
+      if (url.includes('/uploads/')) {
+        return url.substring(url.indexOf('/uploads'));
+      }
+      return url;
+    };
+
     return {
-      passportPhoto: passportDoc?.url || '',
+      passportPhoto: getPassportUrl(),
       firstName: data.firstName || '',
       lastName: data.lastName || '',
       middleName: data.middleName || '',

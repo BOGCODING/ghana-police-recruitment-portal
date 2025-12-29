@@ -4,6 +4,7 @@ import { SocketProvider } from '@/contexts/SocketContext';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'),
   title: 'GPS Admin Portal',
   description: 'Ghana Police Service Recruitment - Admin Dashboard',
 };

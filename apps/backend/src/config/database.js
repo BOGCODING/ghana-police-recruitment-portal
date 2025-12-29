@@ -6,6 +6,9 @@ const pool = new Pool({
   max: 20, // Maximum connections in pool
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  ssl: process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost') 
+    ? { rejectUnauthorized: false } 
+    : false,
 });
 
 // Test connection
