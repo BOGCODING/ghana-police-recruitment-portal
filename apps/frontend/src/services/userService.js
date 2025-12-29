@@ -1,10 +1,10 @@
-import axios from '@/lib/axios';
+import { api } from '@/utils/api';
 
 export const userService = {
   async getProfile() {
     try {
-      const response = await axios.get('/users/me');
-      return response.data.data;
+      const response = await api('/api/users/me');
+      return response.data;
     } catch (error) {
       console.error('User service error:', error);
       throw error;
@@ -13,8 +13,8 @@ export const userService = {
 
   async updateProfile(userData) {
     try {
-      const response = await axios.put('/users/profile', userData);
-      return response.data.data;
+      const response = await api('/api/users/profile', { method: 'PUT', body: JSON.stringify(userData) });
+      return response.data;
     } catch (error) {
       console.error('User service error:', error);
       throw error;
@@ -23,8 +23,8 @@ export const userService = {
 
   async changePassword(passwordData) {
     try {
-      const response = await axios.put('/users/password', passwordData);
-      return response.data.data;
+      const response = await api('/api/users/password', { method: 'PUT', body: JSON.stringify(passwordData) });
+      return response.data;
     } catch (error) {
       console.error('User service error:', error);
       throw error;
