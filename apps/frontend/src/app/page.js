@@ -215,7 +215,7 @@ export default function HomePage() {
               <motion.input 
                 whileFocus={{ scale: 1.01, borderColor: '#FFD700' }}
                 type="text" 
-                placeholder="GPS-2025-XXXXXX"
+                placeholder="GPS-2025-XXXXXXXX"
                 value={trackId}
                 onChange={(e) => setTrackId(e.target.value)}
                 className={styles.trackInput}
