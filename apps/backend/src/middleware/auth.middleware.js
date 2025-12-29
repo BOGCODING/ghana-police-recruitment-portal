@@ -17,14 +17,17 @@ const authenticateToken = async (req, res, next) => {
     const finalToken = token || accessTokenCookie;
     
     if (!finalToken) {
-      // logger.debug(`[Auth] No token found. Cookies: ${Object.keys(req.cookies || {}).join(', ')}`);
+      if (accessTokenCookie || refreshTokenCookie) {
+        logger.debug(`[Auth] No valid token found despite cookies being present. Access: ${!!accessTokenCookie}, Refresh: ${!!refreshTokenCookie}`);
+      }
       return errorResponse(res, 'Access token required', 401);
     }
     
     const decoded = verifyAccessToken(finalToken);
     
     if (!decoded) {
-      logger.warn(`[Auth] Token verification failed. Has accessToken cookie: ${!!accessTokenCookie}, Has refreshToken cookie: ${!!refreshTokenCookie}`);
+      const source = token ? 'header' : 'cookie';
+      logger.warn(`[Auth] Token verification failed from ${source}. Has accessToken cookie: ${!!accessTokenCookie}, Has refreshToken cookie: ${!!refreshTokenCookie}`);
       return errorResponse(res, 'Invalid or expired token', 401);
     }
     

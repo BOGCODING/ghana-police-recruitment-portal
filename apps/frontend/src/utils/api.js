@@ -70,6 +70,13 @@ export const api = async (endpoint, options = {}) => {
     
     if (refreshSuccessful) {
       console.log(`[API] Token refresh successful. Retrying ${path}...`);
+      
+      // Update the Authorization header with the new token for the retry
+      const newToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      if (newToken) {
+        config.headers['Authorization'] = `Bearer ${newToken}`;
+      }
+      
       // Retry original request after successful refresh
       response = await fetch(`${API_URL}${path}`, config);
       if (response.ok) {
