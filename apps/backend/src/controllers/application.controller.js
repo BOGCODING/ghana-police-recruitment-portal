@@ -662,12 +662,19 @@ const downloadPDF = async (req, res) => {
 
     const fullEducation = await EducationModel.getFullEducation(appId);
 
+    const eligibilityReport = EligibilityService.check({
+      application: app,
+      personalInfo: personalInfo.rows[0],
+      education: fullEducation
+    });
+
     const data = {
       application: app,
       personalInfo: personalInfo.rows[0],
       contactInfo: contactInfo.rows[0],
       education: fullEducation,
-      passportPhoto: documents.rows[0]
+      passportPhoto: documents.rows[0],
+      eligibilityReport
     };
 
 

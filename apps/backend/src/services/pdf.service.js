@@ -23,7 +23,8 @@ const PDFService = {
       personalInfo = {}, 
       contactInfo = {}, 
       education = {}, 
-      passportPhoto = null 
+      passportPhoto = null,
+      eligibilityReport = null
     } = data;
     
     let qrDataUrl = null;
@@ -94,8 +95,9 @@ const PDFService = {
 
         doc.fillColor('#666666').font('Helvetica').fontSize(8).text('SUBMISSION STATUS', 200, topY + 42);
         const appStatus = application?.status || 'DRAFT';
-        const displayStatus = (appStatus === 'REJECTED' || appStatus === 'DISQUALIFIED') ? 'DISQUALIFIED' : 'QUALIFIED';
-        doc.fillColor(displayStatus === 'QUALIFIED' ? '#006B3F' : '#CE1126').font('Helvetica-Bold').fontSize(10).text(displayStatus, 200, topY + 52);
+        const isEligible = eligibilityReport ? eligibilityReport.eligible : (appStatus !== 'REJECTED' && appStatus !== 'DISQUALIFIED');
+        const displayStatus = isEligible ? 'QUALIFIED' : 'DISQUALIFIED';
+        doc.fillColor(isEligible ? '#006B3F' : '#CE1126').font('Helvetica-Bold').fontSize(10).text(displayStatus, 200, topY + 52);
 
         // Passport & QR Alignment
         if (passportPhoto) {
@@ -269,6 +271,30 @@ const PDFService = {
             });
           }
         } catch (err) { logger.error('Education section error:', err); }
+
+        // 5. Eligibility Report (Reasons for Disqualification)
+        try {
+          if (eligibilityReport && eligibilityReport.checks) {
+            doc.moveDown(0.5);
+            doc.rect(35, doc.y, 525, 18).fill('#F8F9FA');
+            doc.fillColor('#1F2937').font('Helvetica-Bold').fontSize(9).text('ELIGIBILITY PRE-SCREENING REPORT', 45, doc.y + 4.5);
+            doc.moveDown(0.8);
+
+            const failedChecks = eligibilityReport.checks.filter(c => c.status === 'failed');
+            
+            if (failedChecks.length > 0) {
+              doc.fillColor('#CE1126').font('Helvetica-Bold').fontSize(8.5).text('Potential Reasons for Disqualification:', 50);
+              doc.moveDown(0.3);
+              failedChecks.forEach(check => {
+                doc.fillColor('#CE1126').font('Helvetica').fontSize(8).text(`• ${check.name}: ${check.message}`, 60);
+                doc.moveDown(0.2);
+              });
+            } else {
+              doc.fillColor('#006B3F').font('Helvetica-Bold').fontSize(8.5).text('Applicant meets all baseline eligibility requirements.', 50);
+            }
+            doc.moveDown(0.5);
+          }
+        } catch (err) { logger.error('Eligibility Report section error:', err); }
 
         // --- Declaration area (Compact) ---
         try {
