@@ -9,7 +9,7 @@ const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const { user, refetch } = useAuth();
   const [socket, setSocket] = useState(null);
-  const WS_URL = (process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '').replace(/\/+$/, '');
+  const WS_URL = (process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '').replace(/\/+$/, '') || (typeof window !== 'undefined' ? window.location.origin : '');
 
   const socketRef = useRef(null);
 
