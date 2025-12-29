@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { api } from '../utils/api';
+import { api } from '../../utils/api';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import styles from './page.module.css';
 
@@ -131,6 +131,15 @@ export default function HomePage() {
                 whileTap={{ scale: 0.95 }}
               >
                 View Requirements
+              </motion.span>
+            </Link>
+            <Link href="/login">
+              <motion.span 
+                className={styles.btnLogin}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Login to Portal
               </motion.span>
             </Link>
           </motion.div>
@@ -334,30 +343,6 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.container}>
-          <div className={styles.footerContent}>
-            <div className={styles.footerBrand}>
-              <div className={styles.footerLogo}>
-                <Image src="/logo.png" alt="Ghana Police Service Logo" width={60} height={60} />
-                <h3>Ghana Police Service</h3>
-              </div>
-              <p>Serving with integrity since 1894</p>
-            </div>
-
-            <div className={styles.footerLinks}>
-              <Link href="/about">About</Link>
-              <Link href="/requirements">Requirements</Link>
-              <Link href="/faq">FAQ</Link>
-              <Link href="/contact">Contact</Link>
-            </div>
-          </div>
-          <div className={styles.footerBottom}>
-            <p>© 2025 Ghana Police Service. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }

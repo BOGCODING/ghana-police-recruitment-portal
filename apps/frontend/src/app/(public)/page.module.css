@@ -106,13 +106,25 @@
 
 .btnSecondary {
   padding: 1rem 2rem;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
   color: white;
   font-weight: 600;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   font-size: 1.1rem;
   transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+.btnLogin {
+  padding: 1rem 2rem;
+  background: white;
+  color: #001F3F;
+  font-weight: 700;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btnSecondary:hover {
@@ -465,61 +477,7 @@
   box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
 }
 
-/* Footer */
-.footer {
-  background: #0A0A0A;
-  color: white;
-  padding: 3rem 0 1.5rem;
-}
-
-.footerContent {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 2rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footerLogo {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-.footerBrand h3 {
-  font-size: 1.25rem;
-  margin: 0;
-}
-
-
-.footerBrand p {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.875rem;
-}
-
-.footerLinks {
-  display: flex;
-  gap: 2rem;
-}
-
-.footerLinks a {
-  color: rgba(255, 255, 255, 0.7);
-  transition: color 0.3s ease;
-}
-
-.footerLinks a:hover {
-  color: #FFD700;
-}
-
-.footerBottom {
-  padding-top: 1.5rem;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.875rem;
-}
+/* Footer styles removed in favor of global Footer */
 
 @media (max-width: 768px) {
   .heroStats {
