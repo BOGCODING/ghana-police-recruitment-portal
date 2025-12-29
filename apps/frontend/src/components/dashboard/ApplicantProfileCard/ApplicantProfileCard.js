@@ -12,9 +12,7 @@ export default function ApplicantProfileCard() {
   const { user } = useAuth();
   const { formData } = useApplication();
 
-  // Get passport photo from form data
-  const passportPhoto = formData?.documents?.find(d => d.documentType === 'passportPhoto');
-  const profileImage = passportPhoto?.url;
+  const profileImage = user?.profileImage;
 
   // Get name from multiple sources: user.fullName, formData.personalInfo, or fallback
   const firstName = formData?.personalInfo?.firstName || user?.firstName || '';

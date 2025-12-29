@@ -3,7 +3,7 @@ const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = requir
 const { hashPassword, comparePassword, validatePasswordStrength } = require('../utils/passwordHasher');
 const { generateResetToken, generateApplicationId } = require('../utils/generators');
 const { successResponse, errorResponse } = require('../utils/responseHandler');
-const { normalizePhoneNumber, toUpperCase } = require('../utils/helpers');
+const { normalizePhoneNumber, toUpperCase, formatDocument } = require('../utils/helpers');
 const { cacheSet, cacheDelete } = require('../config/redis');
 const { sendRegistrationConfirmation, sendPasswordReset } = require('../services/email.service');
 const logger = require('../utils/logger');
@@ -385,7 +385,8 @@ const getCurrentUser = async (req, res) => {
       `SELECT a.id, a."serialNumber", a.email, a."phoneNumber", a.status, a."createdAt",
               app."currentStep", app.status as "applicationStatus", app."applicationId",
               app."requiredDocuments", app."documentRequestMessage", app."rejectionReason", app."reviewComments",
-              pi."firstName", pi."middleName", pi."lastName"
+              pi."firstName", pi."middleName", pi."lastName",
+              (SELECT "filePath" FROM documents WHERE "applicationId" = app.id AND "documentType" IN ('PASSPORT_PHOTO', 'passportPhoto') LIMIT 1) as "passportPhotoPath"
        FROM applicants a
        LEFT JOIN applications app ON a.id = app."applicantId"
        LEFT JOIN personal_info pi ON app.id = pi."applicationId"
@@ -409,7 +410,8 @@ const getCurrentUser = async (req, res) => {
     
     return successResponse(res, {
       ...user,
-      fullName: fullName
+      fullName: fullName,
+      profileImage: user.passportPhotoPath ? formatDocument({ filePath: user.passportPhotoPath }).url : null
     });
     
   } catch (error) {

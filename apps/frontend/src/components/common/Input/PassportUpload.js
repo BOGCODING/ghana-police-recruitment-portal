@@ -5,11 +5,13 @@ import { useDropzone } from 'react-dropzone';
 import Cropper from 'react-easy-crop';
 import Image from 'next/image';
 import { useApplication } from '@/contexts/ApplicationContext';
+import { useAuth } from '@/contexts/AuthContext';
 import styles from './PassportUpload.module.css';
 import { api } from '../../../utils/api';
 import getCroppedImg from '../../../utils/cropImage';
 
 export default function PassportUpload({ onChange, value, error }) {
+  const { refetch } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(value?.url || value?.filePath || null);
   const [localError, setLocalError] = useState(null);
@@ -93,6 +95,9 @@ export default function PassportUpload({ onChange, value, error }) {
       if (onChange) {
         onChange(normalizedDoc);
       }
+
+      // Trigger global user refetch to update profile pictures everywhere
+      await refetch();
 
     } catch (err) {
       console.error(err);

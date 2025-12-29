@@ -2,12 +2,14 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useApplication } from '@/contexts/ApplicationContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { getRequiredDocuments, getOptionalDocuments } from '@/config/categoryRequirements';
 import styles from './DocumentUpload.module.css';
 import { api } from '../../../utils/api';
 
 export default function DocumentUpload() {
   const { formData, updateStepData } = useApplication();
+  const { refetch } = useAuth();
   const [documents, setDocuments] = useState({});
   const [uploading, setUploading] = useState({});
   const [errors, setErrors] = useState({});
@@ -67,6 +69,11 @@ export default function DocumentUpload() {
       const updatedDocs = { ...documents, [documentType]: normalizedDoc };
       setDocuments(updatedDocs);
       updateStepData('documents', Object.values(updatedDocs));
+
+      // Trigger user refetch if this is a passport photo
+      if (documentType === 'PASSPORT_PHOTO' || documentType === 'passportPhoto') {
+        await refetch();
+      }
     } catch (error) {
       setErrors(prev => ({ ...prev, [documentType]: error.message }));
     } finally {

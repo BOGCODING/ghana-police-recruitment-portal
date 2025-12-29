@@ -3,7 +3,6 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
-import { useApplication } from '@/contexts/ApplicationContext';
 import { getUserRole } from '@/utils/roleHelper';
 import styles from './Sidebar.module.css';
 import { FiChevronLeft, FiChevronRight, FiLogOut } from 'react-icons/fi';
@@ -11,10 +10,8 @@ import { FiChevronLeft, FiChevronRight, FiLogOut } from 'react-icons/fi';
 export default function Sidebar({ onMobileClose, isCollapsed, onToggleCollapse }) {
   const pathname = usePathname();
   const { logout, user } = useAuth();
-  const { formData } = useApplication();
 
-  const passportPhoto = formData?.documents?.find(d => d.documentType === 'passportPhoto');
-  const profileImage = passportPhoto?.url;
+  const profileImage = user?.profileImage;
 
   const menuItems = [
     { label: 'Dashboard', href: '/dashboard', icon: '📊' },
