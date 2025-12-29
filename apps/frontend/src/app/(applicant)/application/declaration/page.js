@@ -28,7 +28,7 @@ export default function DeclarationPage() {
   const getNormalizedDefaultValues = useCallback(() => {
     const data = formData.declaration || {};
     return {
-      acceptsDeclarations: data.acceptsDeclarations ?? false,
+      acceptsDeclarations: data.acceptsDeclarations ?? true,
       signature: data.signature || ''
     };
   }, [formData.declaration]);
