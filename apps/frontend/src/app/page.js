@@ -40,7 +40,7 @@ export default function HomePage() {
     { name: 'Graduates', img: '/images/categories/graduates.jpg', desc: 'Degree, HND, Diploma holders', link: '/requirements/graduates' },
     { name: 'Medical', img: '/images/categories/medical.jpg', desc: 'Healthcare professionals', link: '/requirements/medical' },
     { name: 'Religious', img: '/images/categories/religious.jpg', desc: 'Chaplains and Imams', link: '/requirements/religious' },
-    { name: 'Sportsmen', img: '/images/categories/general-duty.jpg', desc: 'Athletic achievers', link: '/requirements/sportsmen' },
+    { name: 'Sportsmen', img: '/images/categories/sportsmen.jpg', desc: 'Athletic achievers', link: '/requirements/sportsmen' },
   ];
 
   const steps = [
