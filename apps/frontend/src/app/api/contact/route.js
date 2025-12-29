@@ -1,7 +1,7 @@
 export async function POST(request) {
   try {
     const data = await request.json();
-    const backendUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/\/+$/, '') || 'http://localhost:5000';
+    const backendUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/\/+$/, '');
 
     const response = await fetch(`${backendUrl}/contact`, {
       method: 'POST',

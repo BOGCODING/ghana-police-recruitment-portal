@@ -1,5 +1,5 @@
 export async function GET() {
-  const backendUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/\/+$/, '') || 'http://localhost:5000';
+  const backendUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/\/+$/, '');
   let backendStatus = 'unknown';
 
   try {
