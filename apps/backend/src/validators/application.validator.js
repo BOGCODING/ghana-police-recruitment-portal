@@ -169,10 +169,16 @@ const categorySelectionSchema = Joi.object({
 
 // Declaration Schema
 const declarationSchema = Joi.object({
-  acceptsDeclarations: Joi.boolean().required(),
+  acceptsDeclarations: Joi.boolean().optional(),
+  hasNoCriminalRecord: Joi.boolean().optional(),
+  hasNotBeenDismissed: Joi.boolean().optional(),
+  isGhanaianByBirth: Joi.boolean().optional(),
+  isOfGoodCharacter: Joi.boolean().optional(),
+  isPhysicallyFit: Joi.boolean().optional(),
+  acceptsTerms: Joi.boolean().optional(),
   signature: Joi.string().required(),
   declarationDate: Joi.date().default(Date.now)
-});
+}).or('acceptsDeclarations', 'hasNoCriminalRecord');
 
 module.exports = {
   personalInfoSchema,
