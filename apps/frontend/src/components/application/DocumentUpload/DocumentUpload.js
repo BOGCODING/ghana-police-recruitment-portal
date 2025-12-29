@@ -31,7 +31,14 @@ export default function DocumentUpload() {
     if (formData.documents && Array.isArray(formData.documents)) {
       const docMap = {};
       formData.documents.forEach(doc => {
-        docMap[doc.documentType] = doc;
+        // Normalize PASSPORT_PHOTO (backend name) to passportPhoto (frontend config key)
+        const type = (doc.documentType === 'PASSPORT_PHOTO' || doc.documentType === 'passportPhoto') 
+          ? 'passportPhoto' 
+          : doc.documentType;
+        docMap[type] = {
+          ...doc,
+          documentType: type
+        };
       });
       setDocuments(docMap);
     }
