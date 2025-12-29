@@ -14,7 +14,10 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
     });
     logger.info('Upstash Redis REST client initialized');
   } catch (error) {
-    logger.error('Failed to initialize Upstash Redis REST client:', error.message);
+    logger.error('Failed to initialize Upstash Redis REST client:', { 
+      message: error.message,
+      url: process.env.UPSTASH_REDIS_REST_URL.substring(0, 15) + '...' 
+    });
   }
 }
 
@@ -70,12 +73,16 @@ const connectRedis = async () => {
     logger.info('Redis (TCP) connected successfully');
     return redis;
   } catch (error) {
-    logger.error('Redis (TCP) connection failed:', error.message);
+    const redisDesc = process.env.REDIS_URL 
+      ? 'URL: ' + process.env.REDIS_URL.split('@')[1] || 'URL starting with ' + process.env.REDIS_URL.substring(0, 10)
+      : `Host: ${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
+      
+    logger.error(`Redis (TCP) connection failed [${redisDesc}]:`, error.message || error);
     if (upstash) {
       logger.info('Upstash Redis REST client is active (Fallback).');
       return upstash;
     }
-    console.warn('WARNING: Redis (TCP) and Upstash REST both unavailable. Rate limiting will fall back to memory store.');
+    logger.warn('WARNING: Redis (TCP) and Upstash REST both unavailable. Rate limiting will fall back to memory store.');
     redis = null;
     return null;
   }

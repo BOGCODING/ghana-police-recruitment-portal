@@ -100,13 +100,28 @@ const PDFService = {
         // Passport & QR Alignment
         if (passportPhoto) {
           try {
-            let photoPath = passportPhoto.filePath;
-            if (photoPath && !path.isAbsolute(photoPath)) photoPath = getAbsolutePath(photoPath);
+            let photoPath = passportPhoto.filePath || passportPhoto.path;
+            logger.info('PDF Gen: Passport photo object found', { 
+              hasFilePath: !!passportPhoto.filePath, 
+              hasPath: !!passportPhoto.path,
+              filePath: passportPhoto.filePath
+            });
+            
+            if (photoPath && !path.isAbsolute(photoPath)) {
+              photoPath = getAbsolutePath(photoPath);
+            }
+            
+            logger.info('PDF Gen: Resolved photo path', { photoPath, exists: photoPath ? fs.existsSync(photoPath) : false });
+
             if (photoPath && fs.existsSync(photoPath)) {
               doc.image(photoPath, 375, topY, { width: 85, height: 85 });
               doc.rect(375, topY, 85, 85).lineWidth(1.5).strokeColor(accent).stroke();
+            } else {
+              logger.warn('PDF Gen: Passport photo file NOT FOUND at path:', photoPath);
             }
           } catch (err) { logger.error('Photo error:', err); }
+        } else {
+          logger.warn('PDF Gen: No passport photo document provided in data');
         }
 
         if (qrDataUrl && qrDataUrl.includes(',')) {

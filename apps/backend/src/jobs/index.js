@@ -7,20 +7,19 @@ const getRedisConfig = () => {
   
   if (url) {
     const isTls = url.startsWith('rediss://');
+    
+    // For Bull, if we provide an object as the 2nd argument, 
+    // it looks for the 'redis' property for ioredis options.
     return {
       redis: {
+        port: parseInt(new URL(url).port) || 6379,
+        host: new URL(url).hostname,
+        password: new URL(url).password || undefined,
+        tls: isTls ? { rejectUnauthorized: false } : undefined,
         maxRetriesPerRequest: null, // Required for Bull
-        enableReadyCheck: false, // Bull handles this
+        enableReadyCheck: false,
       },
-      // Pass the URL string directly if not TLS, or use an object for TLS
-      // Actually Bull v4 works well with the URL string if it includes the protocol
-      // But we need to ensure TLS options are passed if using rediss://
-      ...(isTls ? {
-        redis: {
-          tls: { rejectUnauthorized: false },
-          maxRetriesPerRequest: null
-        }
-      } : {})
+      ...defaultJobOptions
     };
   }
 
@@ -30,7 +29,8 @@ const getRedisConfig = () => {
       port: parseInt(process.env.REDIS_PORT) || 6379,
       password: process.env.REDIS_PASSWORD || undefined,
       maxRetriesPerRequest: null
-    }
+    },
+    ...defaultJobOptions
   };
 };
 
