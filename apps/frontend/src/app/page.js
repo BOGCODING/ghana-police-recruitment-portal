@@ -1,9 +1,9 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { api } from '../utils/api';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import styles from './page.module.css';
 
 // Animation Variants
@@ -27,38 +27,7 @@ const staggerContainer = {
   }
 };
 
-// Counter Component
-const Counter = ({ value, label }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
 
-  useEffect(() => {
-    if (isInView) {
-      const end = parseInt(value.replace(/\D/g, ''));
-      let start = 0;
-      const duration = 2000;
-      const stepTime = Math.abs(Math.floor(duration / end));
-      
-      const timer = setInterval(() => {
-        start += 1;
-        setCount(String(start) + (value.includes('K') ? 'K+' : '') + (value.includes('+') && !value.includes('K') ? '+' : ''));
-        if (start === end) clearInterval(timer);
-      }, stepTime);
-      
-      return () => clearInterval(timer);
-    }
-  }, [isInView, value]);
-
-  return (
-    <div className={styles.stat} ref={ref}>
-      <span className={styles.statNumber}>
-        {value.includes('K') || value.includes('+') ? value : count}
-      </span>
-      <span className={styles.statLabel}>{label}</span>
-    </div>
-  );
-};
 
 export default function HomePage() {
   const { scrollY } = useScroll();
@@ -167,16 +136,7 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
 
-        <motion.div 
-          className={styles.heroStats}
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.8 }}
-        >
-          <Counter value="16" label="Regional Centers" />
-          <Counter value="6" label="Categories" />
-          <Counter value="50K+" label="Expected Applicants" />
-        </motion.div>
+      
       </section>
 
       {/* Categories Section */}
