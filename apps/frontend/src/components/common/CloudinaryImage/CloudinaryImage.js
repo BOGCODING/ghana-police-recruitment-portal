@@ -1,8 +1,7 @@
 import React from 'react';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { auto } from '@cloudinary/url-gen/actions/resize';
-import { format, quality } from '@cloudinary/url-gen/actions/delivery';
-import { AdvancedImage, placeholder, lazyload, responsive } from '@cloudinary/react';
+import { AdvancedImage, placeholder, lazyload } from '@cloudinary/react';
 import styles from './CloudinaryImage.module.css';
 
 // Initialize Cloudinary instance
@@ -43,7 +42,7 @@ const CloudinaryImage = ({
   if (!src) return <div className={`${styles.placeholder} ${className}`} style={{ width, height, ...style }} />;
 
   // 2. Check if it's a Cloudinary ID or a full URL
-  const isUrl = src.startsWith('http') || src.startsWith('/');
+  const isUrl = src.startsWith('http') || src.startsWith('/') || src.startsWith('blob:') || src.startsWith('data:');
   
   // 3. Check if we have a cloud name configured
   const hasCloudConfig = !!cloudName;

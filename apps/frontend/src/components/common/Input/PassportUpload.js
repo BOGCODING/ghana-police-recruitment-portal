@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Cropper from 'react-easy-crop';
-import Image from 'next/image';
+import CloudinaryImage from '@/components/common/CloudinaryImage';
 import { useApplication } from '@/contexts/ApplicationContext';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './PassportUpload.module.css';
@@ -142,14 +142,12 @@ export default function PassportUpload({ onChange, value, error }) {
           <div className={styles.loading}>Uploading...</div>
         ) : preview ? (
           <div className={styles.previewContainer}>
-            <Image 
+            <CloudinaryImage 
               src={preview} 
               alt="Passport Preview" 
               width={150} 
               height={150} 
               className={styles.previewImage}
-              unoptimized
-              style={{ objectFit: 'cover' }}
             />
             <div className={styles.overlay}>
               <span>Click to change</span>

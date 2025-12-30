@@ -2,8 +2,8 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useApplication } from '@/contexts/ApplicationContext';
 import { getUserRole, getStatusLabel, getStatusColor, getStatusClass } from '@/utils/roleHelper';
-import Image from 'next/image';
 import Link from 'next/link';
+import CloudinaryImage from '@/components/common/CloudinaryImage';
 import { FiEdit2 } from 'react-icons/fi';
 import styles from './ApplicantProfileCard.module.css';
 import { motion } from 'framer-motion';
@@ -63,13 +63,12 @@ export default function ApplicantProfileCard() {
           }}
         >
           {profileImage ? (
-            <Image 
+            <CloudinaryImage 
               src={profileImage} 
               alt="Profile" 
               width={80}
               height={80}
               className={styles.avatarImage}
-              unoptimized
             />
           ) : (
             <span className={styles.avatarPlaceholder}>

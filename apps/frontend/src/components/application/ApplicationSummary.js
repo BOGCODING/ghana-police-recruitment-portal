@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import Image from 'next/image'; // Kept for QR code logic which is likely base64/local
+import CloudinaryImage from '@/components/common/CloudinaryImage';
 import { format } from 'date-fns';
 import { FiDownload, FiPrinter, FiCheckCircle } from 'react-icons/fi';
 import { api } from '@/utils/api';
@@ -145,13 +146,12 @@ export default function ApplicationSummary() {
           <div className={styles.photoColumn}>
             <div className={styles.photoBox}>
               {passportPhoto ? (
-                <Image 
+                <CloudinaryImage 
                   src={passportPhoto.url} 
                   alt="Passport" 
                   width={100} 
                   height={100} 
                   className={styles.passportImage}
-                  style={{ objectFit: 'cover' }}
                 />
               ) : (
                 <div className={styles.noPhoto}>Photo N/A</div>
