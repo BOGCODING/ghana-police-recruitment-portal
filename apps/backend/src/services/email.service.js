@@ -35,6 +35,14 @@ const transporter = createTransporter();
 const sendVoucherCredentials = async (to, data) => {
   const { serialNumber, pinCode, expiresAt } = data;
   
+  if (process.env.NODE_ENV === 'development') {
+    logger.info(`[DEV EMAIL] To: ${to}`);
+    logger.info('[DEV EMAIL] Subject: Your GPS Recruitment Registration Credentials');
+    logger.info(`[DEV EMAIL] Serial: ${serialNumber}`);
+    logger.info(`[DEV EMAIL] PIN: ${pinCode}`);
+    logger.info(`[DEV EMAIL] Expires: ${expiresAt}`);
+  }
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -119,6 +127,12 @@ const sendVoucherCredentials = async (to, data) => {
 const sendRegistrationConfirmation = async (to, data) => {
   const { serialNumber, email } = data;
   
+  if (process.env.NODE_ENV === 'development') {
+    logger.info(`[DEV EMAIL] To: ${to}`);
+    logger.info('[DEV EMAIL] Subject: Registration Confirmed - GPS Recruitment Portal');
+    logger.info(`[DEV EMAIL] Serial: ${serialNumber}`);
+  }
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -330,6 +344,12 @@ const sendApplicationSubmissionConfirmation = async (to, data) => {
 const sendPasswordReset = async (to, token) => {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
   
+  if (process.env.NODE_ENV === 'development') {
+    logger.info(`[DEV EMAIL] To: ${to}`);
+    logger.info('[DEV EMAIL] Subject: Password Reset Request - GPS Recruitment Portal');
+    logger.info(`[DEV EMAIL] Reset URL: ${resetUrl}`);
+  }
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -389,6 +409,12 @@ const sendEmailVerification = async (to, data) => {
   const { token, serialNumber } = data;
   const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
   
+  if (process.env.NODE_ENV === 'development') {
+    logger.info(`[DEV EMAIL] To: ${to}`);
+    logger.info('[DEV EMAIL] Subject: Verify Your Email - GPS Recruitment Portal');
+    logger.info(`[DEV EMAIL] Verify URL: ${verifyUrl}`);
+  }
+
   const html = `
     <!DOCTYPE html>
     <html>
