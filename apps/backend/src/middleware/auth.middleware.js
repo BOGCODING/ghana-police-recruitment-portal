@@ -81,7 +81,40 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
+/**
+ * Prevent updates to applications that have already been submitted
+ */
+const preventSubmittedUpdates = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return errorResponse(res, 'Authentication required', 401);
+    }
+
+    const { APPLICATION_STATUS } = require('../config/constants');
+    
+    const result = await query(
+      'SELECT status FROM applications WHERE "applicantId" = $1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return errorResponse(res, 'Application not found', 404);
+    }
+
+    if (result.rows[0].status !== APPLICATION_STATUS.DRAFT) {
+      logger.warn(`Applicant ${req.user.id} attempted to modify submitted application (${result.rows[0].status})`);
+      return errorResponse(res, 'Application cannot be modified after submission', 403);
+    }
+
+    next();
+  } catch (error) {
+    logger.error('Prevent submitted updates middleware error:', error);
+    return errorResponse(res, 'Authorization check failed', 500);
+  }
+};
+
 module.exports = {
   authenticateToken,
-  optionalAuth
+  optionalAuth,
+  preventSubmittedUpdates
 };

@@ -2,6 +2,8 @@
  * responseHandler.js - Standardized API response wrappers
  */
 const { toCamelCase } = require('./transformers');
+const RedirectValidator = require('./redirectValidator');
+const logger = require('./logger');
 
 const successResponse = (res, data = null, message = 'Success', statusCode = 200) => {
   return res.status(statusCode).json({
@@ -9,6 +11,19 @@ const successResponse = (res, data = null, message = 'Success', statusCode = 200
     message,
     data: toCamelCase(data)
   });
+};
+
+/**
+ * Safe Redirect - Prevents Open Redirects
+ * Falls back to defaultPath if returnUrl is untrusted
+ */
+const safeRedirect = (res, returnUrl, defaultPath = '/') => {
+  if (RedirectValidator.isSafeUrl(returnUrl)) {
+    return res.redirect(returnUrl);
+  }
+  
+  logger.warn(`Open Redirect attempt blocked: ${returnUrl}. Redirecting to ${defaultPath}`);
+  return res.redirect(defaultPath);
 };
 
 const errorResponse = (res, message = 'An error occurred', statusCode = 500, errors = null) => {
@@ -46,6 +61,7 @@ const paginatedResponse = (res, data, pagination, message = 'Success') => {
 
 module.exports = {
   successResponse,
+  safeRedirect,
   errorResponse,
   validationErrorResponse,
   paginatedResponse

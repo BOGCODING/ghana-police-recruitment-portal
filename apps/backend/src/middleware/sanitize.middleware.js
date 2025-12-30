@@ -1,6 +1,7 @@
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const logger = require('../utils/logger');
+const AlertService = require('../services/alert.service');
 
 /**
  * Custom XSS sanitizer (xss-clean is deprecated)
@@ -18,7 +19,10 @@ const sanitizeString = (str) => {
     .replace(/vbscript:/gi, '')
     .replace(/<iframe/gi, '&lt;iframe')
     .replace(/<object/gi, '&lt;object')
-    .replace(/<embed/gi, '&lt;embed');
+    .replace(/<embed/gi, '&lt;embed')
+    .replace(/<base/gi, '&lt;base')
+    .replace(/<meta/gi, '&lt;meta')
+    .replace(/<link/gi, '&lt;link');
 };
 
 const sanitizeObject = (obj) => {
@@ -66,9 +70,14 @@ const xssProtection = (req, res, next) => {
  */
 const sqlInjectionProtection = (req, res, next) => {
   const sqlPatterns = [
-    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b)/gi,
-    /(--)|(;)|(\|)/g,
-    /(\bOR\b|\bAND\b)\s*\d+\s*=\s*\d+/gi
+    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE|EXEC|EXECUTE)\b)/gi,
+    /(--)|(;)|(\|)|(\\)/g,
+    /(\bOR\b|\bAND\b)\s*['"]?.*['"]?\s*=\s*['"]?.*['"]?/gi,
+    /SLEEP\s*\(.*\)/gi,
+    /WAITFOR\s+DELAY/gi,
+    /BENCHMARK\s*\(.*\)/gi,
+    /GROUP\s+BY\s+\d+/gi,
+    /ORDER\s+BY\s+\d+/gi
   ];
   
   const checkForSqlInjection = (value) => {
@@ -92,9 +101,23 @@ const sqlInjectionProtection = (req, res, next) => {
     return false;
   };
   
-  // Only log, don't block (parameterized queries should handle this)
-  scanObject(req.body, 'body');
-  scanObject(req.query, 'query');
+  const scanResult = scanObject(req.body, 'body') || scanObject(req.query, 'query');
+  
+  if (scanResult) {
+    AlertService.triggerAlert('SQL_INJECTION_ATTEMPT', {
+      ipAddress: req.ip,
+      url: req.originalUrl,
+      method: req.method,
+      userAgent: req.headers['user-agent'],
+      body: JSON.stringify(req.body).substring(0, 500),
+      query: JSON.stringify(req.query).substring(0, 500)
+    }, 'CRITICAL');
+
+    return res.status(403).json({
+      success: false,
+      message: 'Suspicious request activity detected.'
+    });
+  }
   
   next();
 };
@@ -156,7 +179,21 @@ const securityHeaders = helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow images to be loaded by other origins
   hsts: {
     maxAge: 31536000,
-    includeSubDomains: true
+    includeSubDomains: true,
+    preload: true
+  },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  xssFilter: true,
+  noSniff: true,
+  originAgentCluster: true,
+  permissionsPolicy: {
+    features: {
+      camera: ['\'none\''],
+      microphone: ['\'none\''],
+      geolocation: ['\'none\''],
+      payment: ['\'none\''],
+      usb: ['\'none\'']
+    }
   }
 });
 

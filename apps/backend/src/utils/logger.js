@@ -1,11 +1,45 @@
 const winston = require('winston');
 const path = require('path');
 
+const maskSensitiveData = winston.format((info) => {
+  const sensitiveFields = ['password', 'token', 'pin', 'voucherCode', 'resetToken'];
+  
+  const mask = (obj) => {
+    if (!obj || typeof obj !== 'object') return obj;
+    
+    const shaded = Array.isArray(obj) ? [] : {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (sensitiveFields.some(field => key.toLowerCase().includes(field.toLowerCase()))) {
+        shaded[key] = '********';
+      } else if (typeof value === 'object') {
+        shaded[key] = mask(value);
+      } else {
+        shaded[key] = value;
+      }
+    }
+    return shaded;
+  };
+
+  if (typeof info.message === 'object') {
+    info.message = mask(info.message);
+  }
+  
+  // Also scan interpolation arguments if they exist
+  const splat = info[Symbol.for('splat')];
+  if (splat) {
+    info[Symbol.for('splat')] = splat.map(arg => mask(arg));
+  }
+
+  return info;
+});
+
 const logFormat = winston.format.combine(
+  maskSensitiveData(),
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
   winston.format.printf(({ timestamp, level, message, stack }) => {
-    return `${timestamp} [${level.toUpperCase()}]: ${stack || message}`;
+    const output = typeof message === 'object' ? JSON.stringify(message) : message;
+    return `${timestamp} [${level.toUpperCase()}]: ${stack || output}`;
   })
 );
 

@@ -13,6 +13,8 @@ const logger = require('../utils/logger');
 const EducationModel = require('../models/Education.model');
 const PersonalInfoModel = require('../models/PersonalInfo.model');
 const EligibilityService = require('../services/eligibility.service');
+const ApplicationDTO = require('../dtos/Application.dto');
+const ApplicationService = require('../services/application.service');
 
 /**
  * Get application status
@@ -72,6 +74,10 @@ const getFullApplication = async (req, res) => {
       education: fullEducation
     });
     
+    // Use DTO for standardized response
+    // Use DTO for standardized response logic if needed in future
+    // Currently maintaining manual response for backward compatibility with Admin view
+    
     return successResponse(res, {
       ...appResult.rows[0],
       personalInfo: personalInfo.rows[0] || null,
@@ -93,15 +99,8 @@ const getFullApplication = async (req, res) => {
  */
 const savePersonalInfo = async (req, res) => {
   try {
-    const data = req.body;
-    
-    // Auto uppercase text fields
-    const upperFields = ['firstName', 'lastName', 'middleName', 'hometown'];
-    upperFields.forEach(field => {
-      if (data[field] && typeof data[field] === 'string') {
-        data[field] = data[field].toUpperCase();
-      }
-    });
+    // Use DTO for sanitization and transformation
+    const data = ApplicationDTO.toPersonalInfoInput(req.body);
     
     const appResult = await query(
       'SELECT id FROM applications WHERE "applicantId" = $1',
@@ -168,15 +167,8 @@ const getPersonalInfo = async (req, res) => {
  */
 const saveContactInfo = async (req, res) => {
   try {
-    const data = req.body;
-    
-    // Auto uppercase
-    if (data.residentialAddress && typeof data.residentialAddress === 'string') {
-      data.residentialAddress = data.residentialAddress.toUpperCase();
-    }
-    if (data.emergencyContactName && typeof data.emergencyContactName === 'string') {
-      data.emergencyContactName = data.emergencyContactName.toUpperCase();
-    }
+    // Use DTO for sanitization
+    const data = ApplicationDTO.toContactInfoInput(req.body);
     
     const appResult = await query(
       'SELECT id FROM applications WHERE "applicantId" = $1',
@@ -251,6 +243,9 @@ const getContactInfo = async (req, res) => {
 /**
  * Save education (Step 4)
  */
+/**
+ * Save education (Step 4)
+ */
 const saveEducation = async (req, res) => {
   try {
     const data = req.body;
@@ -266,7 +261,7 @@ const saveEducation = async (req, res) => {
     }
     const appId = appResult.rows[0].id;
 
-    // 2. Transform flat frontend data into structured model format
+    // 2. Transform flat frontend data into structured format expected by Service
     const educationData = {
       hasWassce: !!data.wassceSchool,
       hasNovDec: !!data.hasNovDec,
@@ -294,13 +289,6 @@ const saveEducation = async (req, res) => {
         indexNumber: data.wassceIndexNumber,
         certificateNumber: data.wassceCertificateNumber,
         results: (() => {
-          logger.info('DEBUG SAVE EDUCATION:', {
-            eng: data.wassceEnglish,
-            math: data.wassceMath,
-            keys: Object.keys(data).filter(k => k.includes('wassce')),
-            fullResults: 'LOGGING_ATTEMPT'
-          });
-          
           const res = [
             { subject: 'CORE ENGLISH', grade: data.wassceEnglish },
             { subject: 'CORE MATHEMATICS', grade: data.wassceMath },
@@ -309,8 +297,6 @@ const saveEducation = async (req, res) => {
             { subject: data.elective3Name || 'ELECTIVE 3', grade: data.elective3Grade },
             { subject: data.elective4Name || 'ELECTIVE 4', grade: data.elective4Grade }
           ].filter(r => r.grade);
-          
-          logger.info('DEBUG CONSTRUCTED RESULTS:', res);
           return res;
         })()
       } : null,
@@ -327,10 +313,10 @@ const saveEducation = async (req, res) => {
       } : null
     };
 
-    // 3. Save via transactional model method
-    await EducationModel.saveFullEducation(appId, educationData);
+    // 3. Use Service Layer for transactional save
+    await ApplicationService.saveEducationDetails(appId, educationData);
     
-    // 4. Update application step progress to 5 (Documents)
+    // 4. Update application step progress
     await query(
       `UPDATE applications SET "currentStep" = GREATEST("currentStep", 5), "updatedAt" = NOW()
        WHERE id = $1`,
@@ -625,14 +611,17 @@ const getApplicationSummary = async (req, res) => {
       education: fullEducation
     });
     
-    return successResponse(res, {
-      ...appResult.rows[0],
-      personalInfo: personalInfo.rows[0] || null,
-      contactInfo: contactInfo.rows[0] || null,
+    // Use DTO for output formatting (hide internal IDs)
+    const dataSpec = {
+      application: appResult.rows[0],
+      personalInfo: personalInfo.rows[0],
+      contactInfo: contactInfo.rows[0],
       education: fullEducation,
-      passportPhoto: formatDocument(documents.rows[0]),
+      passportPhoto: documents.rows[0],
       eligibilityReport
-    });
+    };
+    
+    return successResponse(res, ApplicationDTO.toSummaryResponse(dataSpec));
 
     
   } catch (error) {

@@ -1,4 +1,4 @@
-const { getRedis } = require('../config/redis');
+const { getRedis, cacheGet, cacheDelete } = require('../config/redis');
 const { successResponse, errorResponse } = require('../utils/responseHandler');
 const logger = require('../utils/logger');
 
@@ -22,9 +22,9 @@ const getActiveSessions = async (req, res) => {
 
     const sessions = [];
     for (const key of keys) {
-      const data = await redis.get(key);
+      const data = await cacheGet(key);
       if (data) {
-        sessions.push(JSON.parse(data));
+        sessions.push(data); // cacheGet already handles JSON.parse
       }
     }
 
@@ -51,7 +51,7 @@ const terminateSession = async (req, res) => {
     }
 
     const key = `admin_session:${adminId}:${sessionId}`;
-    const deleted = await redis.del(key);
+    const deleted = await cacheDelete(key);
 
     if (deleted) {
       logger.info(`Session terminated by ${req.admin.email}: ${key}`);

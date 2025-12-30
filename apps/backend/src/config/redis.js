@@ -21,6 +21,8 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
   }
 }
 
+const backoffUtils = require('../utils/backoff.utils');
+
 const createRedisClient = () => {
   const config = {
     host: process.env.REDIS_HOST || 'localhost',
@@ -32,8 +34,11 @@ const createRedisClient = () => {
     enableReadyCheck: true,
     lazyConnect: true,
     retryStrategy(times) {
-      if (times > 3) return null;
-      return Math.min(times * 100, 2000);
+      if (times > 5) {
+        logger.error('Redis connection retry limit reached (5 attempts)');
+        return null;
+      }
+      return backoffUtils.getExponentialDelay(times, 500, 10000);
     }
   };
 

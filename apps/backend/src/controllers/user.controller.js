@@ -3,6 +3,7 @@ const { successResponse, errorResponse } = require('../utils/responseHandler');
 const { hashPassword, comparePassword, validatePasswordStrength } = require('../utils/passwordHasher');
 const { normalizePhoneNumber } = require('../utils/helpers');
 const logger = require('../utils/logger');
+const AuthDTO = require('../dtos/Auth.dto');
 
 /**
  * Get current user profile
@@ -26,27 +27,10 @@ const getMe = async (req, res) => {
     
     const user = result.rows[0];
     
-    // Construct full name if personal info exists
-    let fullName = null;
-    if (user.firstName) {
-      fullName = [user.firstName, user.middleName, user.lastName]
-        .filter(Boolean)
-        .join(' ');
-    }
+    // Use DTO for standardized response
+    const formatted = AuthDTO.toCurrentUserResponse(user, user.applicationId ? user : null);
     
-    return successResponse(res, {
-      id: user.id,
-      serialNumber: user.serialNumber,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      fullName: fullName,
-      status: user.status,
-      applicationStatus: user.application_status,
-      applicationId: user.applicationId,
-      currentStep: user.currentStep,
-      lastLogin: user.lastLogin,
-      createdAt: user.createdAt
-    });
+    return successResponse(res, formatted);
     
   } catch (error) {
     logger.error('Get user profile error:', error);

@@ -8,6 +8,7 @@ const {
   voucherLimiter, 
   passwordResetLimiter 
 } = require('../middleware/rateLimiter.middleware');
+const { validateCaptcha } = require('../middleware/captcha.middleware');
 const { 
   registerSchema, 
   loginSchema, 
@@ -27,6 +28,7 @@ router.post('/validate-voucher',
 // Applicant Registration
 router.post('/register',
   authLimiter,
+  validateCaptcha,
   validateBody(registerSchema),
   authController.register
 );
@@ -34,6 +36,7 @@ router.post('/register',
 // Applicant Login
 router.post('/login',
   authLimiter,
+  validateCaptcha,
   validateBody(loginSchema),
   authController.login
 );
@@ -54,6 +57,7 @@ router.post('/logout',
 // Forgot Password
 router.post('/forgot-password',
   passwordResetLimiter,
+  validateCaptcha,
   validateBody(forgotPasswordSchema),
   authController.forgotPassword
 );

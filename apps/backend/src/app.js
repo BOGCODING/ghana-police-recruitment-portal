@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
+const hpp = require('hpp');
 const path = require('path');
 
 const routes = require('./routes');
@@ -32,7 +33,8 @@ app.use(loggerMiddleware);
 app.use(apiLimiter);
 app.use(sanitize);
 app.use(compression());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '1mb' })); // Reduced limit for general API
+app.use(hpp()); // Prevent HTTP Parameter Pollution
 
 // Restrict batching (No Array bodies)
 app.use((req, res, next) => {
@@ -45,7 +47,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
 
 // Logging
@@ -78,20 +80,54 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // API routes
 app.use(['/api', '/api/api'], routes);
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
+// Health check endpoint with DB and Redis checks
+app.get('/health', async (req, res) => {
+  const { query } = require('./config/database');
+  const { getRedis } = require('./config/redis');
+  
+  const healthStatus = {
     success: true,
     message: 'Server is healthy',
-    timestamp: new Date().toISOString()
-  });
+    timestamp: new Date().toISOString(),
+    services: {
+      database: 'unknown',
+      redis: 'unknown'
+    }
+  };
+
+  try {
+    // Check DB
+    await query('SELECT 1');
+    healthStatus.services.database = 'connected';
+  } catch (err) {
+    healthStatus.success = false;
+    healthStatus.services.database = 'disconnected';
+    logger.error('Health Check - DB disconnected:', err);
+  }
+
+  try {
+    // Check Redis
+    const redis = getRedis();
+    if (redis && (redis.status === 'ready' || redis.status === 'connecting')) {
+      healthStatus.services.redis = 'connected';
+    } else {
+      healthStatus.services.redis = 'disconnected';
+      if (!healthStatus.success) healthStatus.success = false;
+    }
+  } catch (err) {
+    healthStatus.services.redis = 'error';
+    logger.error('Health Check - Redis error:', err);
+  }
+
+  const statusCode = healthStatus.success ? 200 : 503;
+  res.status(statusCode).json(healthStatus);
 });
 
 // Basic root endpoint
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Ghana Police Service Recruitment Portal API',
+    message: 'Ghana Police Recruitment API is running',
     docs: '/api/docs',
     version: '1.0.0'
   });
@@ -105,7 +141,37 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
+// Error handling - MUST be last middleware
 app.use(errorHandler);
+
+// --- Runtime Process Protection ---
+const AlertService = require('./services/alert.service');
+
+process.on('uncaughtException', (err) => {
+  logger.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+  logger.error(err.name, err.message);
+  
+  // Try to alert before crashing
+  AlertService.triggerAlert('RUNTIME_CRASH_UNCAUGHT_EXCEPTION', {
+    name: err.name,
+    message: err.message,
+    stack: err.stack?.substring(0, 500)
+  }, 'CRITICAL').finally(() => {
+    process.exit(1);
+  });
+});
+
+process.on('unhandledRejection', (err) => {
+  logger.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  logger.error(err.name, err.message);
+  
+  AlertService.triggerAlert('RUNTIME_CRASH_UNHANDLED_REJECTION', {
+    name: err?.name || 'Error',
+    message: err?.message || String(err),
+    stack: err?.stack?.substring(0, 500)
+  }, 'CRITICAL').finally(() => {
+    process.exit(1);
+  });
+});
 
 module.exports = app;

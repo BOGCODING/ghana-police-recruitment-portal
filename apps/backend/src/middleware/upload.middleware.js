@@ -66,11 +66,26 @@ Object.values(UPLOAD_DIRS).forEach(dir => {
 });
 
 /**
+ * Sanitize filename to only allow alphanumeric, dots, dashes, and underscores
+ * This "Allowed List" approach prevents control characters, path separators, etc.
+ */
+const sanitizeFilename = (filename) => {
+  // 1. Remove any path directory components just in case
+  const name = path.basename(filename);
+  
+  // 2. Enforce strict allowlist: a-z, A-Z, 0-9, ., -, _
+  // Everything else is replaced with nothing or a safe replacement
+  return name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+};
+
+/**
  * Generate UUID filename
  */
 const generateSecureFilename = (originalName) => {
   const uuid = crypto.randomUUID();
-  const ext = path.extname(originalName).toLowerCase();
+  // Sanitize the original name first to ensure the extension is safe
+  const safeName = sanitizeFilename(originalName);
+  const ext = path.extname(safeName).toLowerCase();
   const timestamp = Date.now();
   return `${uuid}-${timestamp}${ext}`;
 };
@@ -162,6 +177,9 @@ const validateUploadedFile = async (req, res, next) => {
       fs.unlinkSync(req.file.path);
       throw new AppError(`File too large. Max size: ${config.maxSize / (1024 * 1024)}MB`, 400);
     }
+
+    // SANITIZE: Enforce allowed list on original filename before any further processing
+    req.file.originalname = sanitizeFilename(req.file.originalname);
 
     // Read file for magic byte validation
     const buffer = fs.readFileSync(req.file.path);
@@ -285,8 +303,17 @@ const scanForMalware = async (req, res, next) => {
  * Get absolute path from relative path
  */
 const getAbsolutePath = (relativePath) => {
-  if (path.isAbsolute(relativePath)) return relativePath;
-  return path.join(UPLOAD_BASE, relativePath);
+  // 1. Resolve the path to handle .. and . segments
+  const resolvedPath = path.resolve(UPLOAD_BASE, relativePath);
+  
+  // 2. Ensure the resolved path actually starts with our UPLOAD_BASE
+  // This prevents ../../etc/passwd type attacks
+  if (!resolvedPath.startsWith(path.resolve(UPLOAD_BASE))) {
+    logger.warn(`Potential Path Traversal Attempt: ${relativePath} -> ${resolvedPath}`);
+    throw new AppError('Invalid file path: Access denied', 403);
+  }
+
+  return resolvedPath;
 };
 
 /**

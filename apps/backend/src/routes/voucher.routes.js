@@ -4,6 +4,7 @@ const voucherController = require('../controllers/voucher.controller');
 const { authenticateAdmin, canManageVouchers } = require('../middleware/admin.middleware');
 const { validateBody, validateQuery } = require('../middleware/validation.middleware');
 const { voucherLimiter } = require('../middleware/rateLimiter.middleware');
+const { validateCaptcha } = require('../middleware/captcha.middleware');
 const { 
   generateVoucherSchema, 
   bulkVoucherSchema,
@@ -14,6 +15,7 @@ const {
 // Public: Check voucher validity
 router.post('/check',
   voucherLimiter,
+  validateCaptcha,
   validateBody(validateVoucherSchema),
   voucherController.checkVoucher
 );
@@ -21,6 +23,7 @@ router.post('/check',
 // Public: Purchase voucher
 router.post('/purchase',
   voucherLimiter,
+  validateCaptcha,
   validateBody(require('../validators/voucher.validator').purchaseVoucherSchema),
   voucherController.purchaseVoucher
 );

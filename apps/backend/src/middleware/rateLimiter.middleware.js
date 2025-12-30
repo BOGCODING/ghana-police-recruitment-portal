@@ -2,6 +2,7 @@ const rateLimit = require('express-rate-limit');
 const RedisStore = require('rate-limit-redis');
 const { getRedis, isTcp } = require('../config/redis');
 const logger = require('../utils/logger');
+const AlertService = require('../services/alert.service');
 
 // Check if we're in development mode
 const isDev = process.env.NODE_ENV !== 'production';
@@ -47,6 +48,13 @@ const apiLimiter = rateLimit({
   },
   handler: (req, res, next, options) => {
     logger.warn(`General Rate limit exceeded: ${req.ip} - ${req.originalUrl} - Agent: ${req.headers['user-agent']}`);
+    
+    AlertService.triggerAlert('RATE_LIMIT_EXCEEDED_GENERAL', {
+      ipAddress: req.ip,
+      url: req.originalUrl,
+      userAgent: req.headers['user-agent']
+    }, 'INFO');
+
     res.status(options.statusCode).json(options.message);
   }
 });
@@ -64,7 +72,16 @@ const authLimiter = rateLimit({
   store: getRedisStore(),
   skipSuccessfulRequests: true, // Don't count successful logins
   handler: (req, res, next, options) => {
-    logger.warn(`Auth rate limit exceeded: ${req.ip} - ${req.body?.email || 'unknown'}`);
+    const email = req.body?.email || 'unknown';
+    logger.warn(`Auth rate limit exceeded: ${req.ip} - ${email}`);
+    
+    AlertService.triggerAlert('BRUTE_FORCE_AUTH_ATTEMPT', {
+      ipAddress: req.ip,
+      email: email,
+      url: req.originalUrl,
+      userAgent: req.headers['user-agent']
+    }, 'CRITICAL');
+
     res.status(options.statusCode).json(options.message);
   }
 });
@@ -82,6 +99,12 @@ const voucherLimiter = rateLimit({
   store: getRedisStore(),
   handler: (req, res, next, options) => {
     logger.warn(`Voucher rate limit exceeded: ${req.ip}`);
+    
+    AlertService.triggerAlert('VOUCHER_BRUTE_FORCE_ATTEMPT', {
+      ipAddress: req.ip,
+      url: req.originalUrl
+    }, 'CRITICAL');
+
     res.status(options.statusCode).json(options.message);
   }
 });

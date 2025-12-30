@@ -6,7 +6,7 @@ const { parsePagination, formatDocument } = require('../utils/helpers');
 const { ADMIN_ROLES, APPLICATION_STATUS } = require('../config/constants');
 // WebSocket lazy-loaded to avoid circular dependency
 // const { emitToUser, emitApplicationUpdate } = require('../websocket');
-const { cacheGet, cacheSet, cacheDelete } = require('../config/redis');
+const { cacheSet, cacheDelete } = require('../config/redis');
 const { sendApplicationStatusUpdate } = require('../services/email.service');
 const ApplicationService = require('../services/application.service');
 const logger = require('../utils/logger');
@@ -60,7 +60,8 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     
     const result = await query(
-      `SELECT id, email, "passwordHash", "firstName", "lastName", role, "isActive", "assignedRegions"
+      `SELECT id, email, "passwordHash", "firstName", "lastName", role, "isActive", "assignedRegions",
+              "loginAttempts", "lockUntil"
        FROM admins WHERE email = $1`,
       [email.toLowerCase()]
     );
@@ -73,41 +74,43 @@ const login = async (req, res) => {
     
     const admin = result.rows[0];
     
-    // Check if account is locked (simple 5-minute lockout)
-    const lockoutKey = `lockout:admin:${email.toLowerCase()}`;
-    const attemptsKey = `attempts:admin:${email.toLowerCase()}`;
-    
-    const isLocked = await cacheGet(lockoutKey);
-    if (isLocked) {
-      logger.warn(`Admin account locked attempt: ${email}`);
-      return errorResponse(res, 'Account temporarily locked due to multiple failed attempts. Please try again in 5 minutes.', 403);
+    // Check lockout
+    if (admin.lockUntil && new Date(admin.lockUntil) > new Date()) {
+      const remainingMinutes = Math.ceil((new Date(admin.lockUntil) - new Date()) / 60000);
+      logger.warn(`Locked admin login attempt: ${email}`);
+      return errorResponse(res, `Account temporarily locked due to multiple failed attempts. Please try again in ${remainingMinutes} minutes.`, 403);
     }
 
     const isMatch = await comparePassword(password, admin.passwordHash);
     
     if (!isMatch) {
       // Increment failed attempts
-      const attempts = (parseInt(await cacheGet(attemptsKey)) || 0) + 1;
-      await cacheSet(attemptsKey, attempts, 300); // Reset after 5 mins (300 seconds)
-      
-      if (attempts >= 5) {
-        await cacheSet(lockoutKey, 'true', 300); // Lock for 5 mins
-        logger.warn(`Admin account locked: ${email}`);
+      const attempts = (admin.loginAttempts || 0) + 1;
+      let lockUntil = null;
+      if (attempts >= 3) {
+        lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
       }
+      
+      await query(
+        'UPDATE admins SET "loginAttempts" = $1, "lockUntil" = $2 WHERE id = $3',
+        [attempts, lockUntil, admin.id]
+      );
       
       // Audit log failed attempt
       await query(
         `INSERT INTO audit_logs (action, "entityType", "entityId", "userId", "userType", details)
          VALUES ('LOGIN_FAILURE', 'admin', $1, $1, 'admin', $2)`,
-        [admin.id, JSON.stringify({ email, attempts, reason: 'Invalid password' })]
+        [admin.id, JSON.stringify({ email, attempts, reason: 'Invalid password', locked: !!lockUntil })]
       );
 
+      if (attempts >= 3) {
+        return errorResponse(res, 'Too many failed attempts. Account locked for 15 minutes.', 403);
+      }
       return errorResponse(res, 'Invalid credentials', 401);
     }
 
     // Reset attempts on success
-    await cacheDelete(attemptsKey);
-    await cacheDelete(lockoutKey); // Ensure lockout is cleared if somehow set but password was correct
+    // Handled in the update query below step 3
     
     if (!admin.isActive) {
       // Audit log for disabled account
@@ -133,8 +136,8 @@ const login = async (req, res) => {
       type: 'admin'
     });
     
-    // Update last login
-    await query('UPDATE admins SET "lastLogin" = NOW() WHERE id = $1', [admin.id]);
+    // Update last login and reset attempts
+    await query('UPDATE admins SET "lastLogin" = NOW(), "loginAttempts" = 0, "lockUntil" = NULL WHERE id = $1', [admin.id]);
     
     // Audit log
     await query(
@@ -172,7 +175,7 @@ const login = async (req, res) => {
       role: admin.role
     };
     
-    await cacheSet(`admin_session:${admin.id}:${sessionId}`, JSON.stringify(sessionData), 60 * 60 * 24 * 7); // 7 days
+    await cacheSet(`admin_session:${admin.id}:${sessionId}`, sessionData, 60 * 60 * 24 * 7); // 7 days
     await query(`INSERT INTO audit_logs (action, "entityType", "entityId", "userId", "userType", details)
                  VALUES ('SESSION_START', 'session', $1, $2, 'admin', $3)`,
     [sessionId, admin.id, JSON.stringify(sessionData)]);
