@@ -37,7 +37,7 @@ services:
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
       - key: NODE_OPTIONS
-        value: "--max-old-space-size=450"
+        value: "--max-old-space-size=350"
       - key: EMAIL_HOST
         sync: false
       - key: EMAIL_PORT
@@ -60,7 +60,7 @@ services:
     plan: free
     rootDir: apps/frontend
     buildCommand: npm install -g pnpm@latest && pnpm install --no-frozen-lockfile && pnpm run build
-    startCommand: HOSTNAME=0.0.0.0 npx next start -p $PORT
+    startCommand: pnpm start
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION
@@ -78,7 +78,7 @@ services:
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
       - key: NODE_OPTIONS
-        value: "--max-old-space-size=450"
+        value: "--max-old-space-size=350"
       - key: PORT
         value: "10000"
 
@@ -91,7 +91,7 @@ services:
     plan: free
     rootDir: apps/admin
     buildCommand: npm install -g pnpm@latest && pnpm install --no-frozen-lockfile && pnpm run build
-    startCommand: HOSTNAME=0.0.0.0 npx next start -p $PORT
+    startCommand: pnpm start
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION
@@ -109,6 +109,6 @@ services:
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
       - key: NODE_OPTIONS
-        value: "--max-old-space-size=450"
+        value: "--max-old-space-size=350"
       - key: PORT
         value: "10000"
