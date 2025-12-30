@@ -81,8 +81,6 @@ services:
         value: "--max-old-space-size=450"
       - key: PORT
         value: "10000"
-      - key: PORT
-        value: "10000"
 
   # ---------------------------------------------------------------------------
   # 3. Admin Dashboard (Next.js)
@@ -112,7 +110,5 @@ services:
         value: "1"
       - key: NODE_OPTIONS
         value: "--max-old-space-size=450"
-      - key: PORT
-        value: "10000"
       - key: PORT
         value: "10000"
