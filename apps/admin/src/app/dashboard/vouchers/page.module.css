@@ -37,6 +37,7 @@
 .statCard.available .statValue { color: #10B981; }
 .statCard.used .statValue { color: #3B82F6; }
 .statCard.expired .statValue { color: #EF4444; }
+.statCard.deactivated .statValue { color: #94A3B8; }
 
 .filters { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
 
@@ -102,6 +103,7 @@
 .status.available { background: rgba(16, 185, 129, 0.2); color: #10B981; }
 .status.used { background: rgba(59, 130, 246, 0.2); color: #3B82F6; }
 .status.expired { background: rgba(239, 68, 68, 0.2); color: #EF4444; }
+.status.deactivated { background: rgba(148, 163, 184, 0.2); color: #94A3B8; }
 
 .expiredDate { color: #EF4444; }
 

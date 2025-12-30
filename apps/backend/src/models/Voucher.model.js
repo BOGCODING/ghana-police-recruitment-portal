@@ -152,12 +152,14 @@ const VoucherModel = {
    * @param {string} applicantId - Applicant UUID
    * @returns {Promise<Object|null>} Updated voucher or null
    */
-  async markAsUsed(id, applicantId) {
+  async markAsUsed(id, applicantId, email = null, phoneNumber = null) {
     const result = await query(
       `UPDATE vouchers
-       SET "isUsed" = TRUE, "usedAt" = NOW(), "applicantId" = $2
+       SET "isUsed" = TRUE, "usedAt" = NOW(), "applicantId" = $2,
+           email = COALESCE(email, $3),
+           "phoneNumber" = COALESCE("phoneNumber", $4)
        WHERE id = $1 RETURNING *`,
-      [id, applicantId]
+      [id, applicantId, email, phoneNumber]
     );
     return result.rows[0] || null;
   },
@@ -169,12 +171,14 @@ const VoucherModel = {
    * @param {string} applicantId - Applicant UUID
    * @returns {Promise<Object|null>} Updated voucher or null
    */
-  async markAsUsedWithClient(client, id, applicantId) {
+  async markAsUsedWithClient(client, id, applicantId, email = null, phoneNumber = null) {
     const result = await client.query(
       `UPDATE vouchers
-       SET "isUsed" = TRUE, "usedAt" = NOW(), "applicantId" = $2
+       SET "isUsed" = TRUE, "usedAt" = NOW(), "applicantId" = $2,
+           email = COALESCE(email, $3),
+           "phoneNumber" = COALESCE("phoneNumber", $4)
        WHERE id = $1 RETURNING *`,
-      [id, applicantId]
+      [id, applicantId, email, phoneNumber]
     );
     return result.rows[0] || null;
   },
@@ -264,29 +268,29 @@ const VoucherModel = {
     let paramCount = 1;
 
     if (isUsed !== null) {
-      conditions.push(`"isUsed" = $${paramCount++}`);
+      conditions.push(`v."isUsed" = $${paramCount++}`);
       values.push(isUsed);
     }
 
     if (isExpired === true) {
-      conditions.push('"expiresAt" < NOW()');
+      conditions.push('v."expiresAt" < NOW()');
     } else if (isExpired === false) {
-      conditions.push('"expiresAt" >= NOW()');
+      conditions.push('v."expiresAt" >= NOW()');
     }
 
     if (isDeactivated === true) {
-      conditions.push('"deactivatedAt" IS NOT NULL');
+      conditions.push('v."deactivatedAt" IS NOT NULL');
     } else if (isDeactivated === false) {
-      conditions.push('"deactivatedAt" IS NULL');
+      conditions.push('v."deactivatedAt" IS NULL');
     }
 
     if (generatedBy) {
-      conditions.push(`"generatedBy" = $${paramCount++}`);
+      conditions.push(`v."generatedBy" = $${paramCount++}`);
       values.push(generatedBy);
     }
 
     if (search) {
-      conditions.push(`(code ILIKE $${paramCount} OR "serialNumber" ILIKE $${paramCount} OR email ILIKE $${paramCount})`);
+      conditions.push(`(v.code ILIKE $${paramCount} OR v."serialNumber" ILIKE $${paramCount} OR v.email ILIKE $${paramCount} OR a.email ILIKE $${paramCount})`);
       values.push(`%${search}%`);
       paramCount++;
     }
@@ -296,12 +300,14 @@ const VoucherModel = {
     }
 
     const validSortColumns = ['createdAt', 'expiresAt', 'usedAt', 'code'];
-    const sortColumn = validSortColumns.includes(sortBy) ? `"${sortBy}"` : '"createdAt"';
+    const sortColumn = validSortColumns.includes(sortBy) ? `v."${sortBy}"` : 'v."createdAt"';
     const order = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     // Get total count
     const countResult = await query(
-      `SELECT COUNT(*) FROM vouchers ${whereClause}`,
+      `SELECT COUNT(*) FROM vouchers v 
+       LEFT JOIN applicants a ON v."applicantId" = a.id
+       ${whereClause}`,
       values
     );
     const total = parseInt(countResult.rows[0].count);
@@ -309,7 +315,10 @@ const VoucherModel = {
     // Get paginated results
     const paginationValues = [...values, limit, offset];
     const result = await query(
-      `SELECT * FROM vouchers ${whereClause}
+      `SELECT v.*, a.email as "applicantEmail" 
+       FROM vouchers v
+       LEFT JOIN applicants a ON v."applicantId" = a.id
+       ${whereClause}
        ORDER BY ${sortColumn} ${order}
        LIMIT $${paramCount++} OFFSET $${paramCount}`,
       paginationValues

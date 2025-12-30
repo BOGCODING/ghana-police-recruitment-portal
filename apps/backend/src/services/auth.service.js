@@ -13,25 +13,11 @@ const backoffUtils = require('../utils/backoff.utils');
  */
 const AuthService = {
   /**
-   * Validate voucher credentials
-   */
-  async validateVoucher(serialNumber, pinCode) {
-    const result = await query(
-      `SELECT * FROM vouchers 
-       WHERE "serialNumber" = $1 AND "pinCode" = $2 
-       AND "isUsed" = false 
-       AND "expiresAt" > NOW()
-       AND "deactivatedAt" IS NULL`,
-      [serialNumber, pinCode] // DTO already uppercased these
-    );
-    return result.rows[0];
-  },
-
-  /**
    * Register a new applicant (Transactional)
    */
   async registerApplicant(data) {
     const { serialNumber, pinCode, email, phoneNumber, password } = data;
+    const VoucherService = require('./voucher.service'); // Lazy load to avoid circular dep if any
 
     // 1. Password Strength
     const passwordValidation = validatePasswordStrength(password);
@@ -44,13 +30,17 @@ const AuthService = {
     if (existingUser.rows.length > 0) throw new Error('Email already registered');
 
     // 3. Voucher Check
-    const voucher = await this.validateVoucher(serialNumber, pinCode);
-    if (!voucher) throw new Error('Invalid or expired voucher (or already used)');
+    const voucherResult = await VoucherService.validateVoucher(serialNumber, pinCode);
+    if (!voucherResult.valid) throw new Error(voucherResult.message);
+    const voucher = voucherResult.voucher;
 
     // Check consistency if voucher was pre-assigned
-    if (voucher.email && voucher.email !== email) throw new Error('Email does not match the validated voucher');
-    if (voucher.phoneNumber && normalizePhoneNumber(voucher.phoneNumber) !== phoneNumber) {
-      throw new Error('Phone number does not match the validated voucher');
+    if (voucher.email && voucher.email.toLowerCase() !== email.toLowerCase()) {
+      throw new Error('This voucher is assigned to a different email address');
+    }
+    
+    if (voucher.phoneNumber && normalizePhoneNumber(voucher.phoneNumber) !== normalizePhoneNumber(phoneNumber)) {
+      throw new Error('This voucher is assigned to a different phone number');
     }
 
     const hashedPassword = await hashPassword(password);
@@ -68,12 +58,8 @@ const AuthService = {
       const applicant = applicantResult.rows[0];
 
       // Mark voucher used
-      await client.query(
-        `UPDATE vouchers 
-         SET "isUsed" = true, "usedAt" = NOW(), "applicantId" = $1, email = $3, "phoneNumber" = $4 
-         WHERE id = $2`,
-        [applicant.id, voucher.id, email, phoneNumber]
-      );
+      const { Voucher: VoucherModel } = require('../models');
+      await VoucherModel.markAsUsedWithClient(client, voucher.id, applicant.id, email, phoneNumber);
 
       // Create Application Draft
       const genAppId = await generateApplicationId();

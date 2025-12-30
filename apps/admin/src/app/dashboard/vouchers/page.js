@@ -174,6 +174,10 @@ export default function VouchersPage() {
             <span className={styles.statValue}>{stats.expired || 0}</span>
             <span className={styles.statLabel}>Expired</span>
           </div>
+          <div className={`${styles.statCard} ${styles.deactivated}`}>
+            <span className={styles.statValue}>{stats.deactivated || 0}</span>
+            <span className={styles.statLabel}>Deactivated</span>
+          </div>
           <div className={`${styles.statCard} ${styles.revenue}`}>
             <div className={styles.statGroup}>
               <div className={styles.statItem}>
@@ -217,7 +221,7 @@ export default function VouchersPage() {
           />
         </div>
         <div className={styles.filterButtons}>
-          {['all', 'unused', 'used', 'expired'].map(f => (
+          {['all', 'unused', 'used', 'expired', 'deactivated'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -255,8 +259,8 @@ export default function VouchersPage() {
                   v.email || '-'
                 )}
               </span>
-              <span className={`${styles.status} ${v.isUsed ? styles.used : isExpired(v.expiresAt) ? styles.expired : styles.available}`}>
-                {v.isUsed ? 'Used' : isExpired(v.expiresAt) ? 'Expired' : 'Available'}
+              <span className={`${styles.status} ${v.isUsed ? styles.used : v.deactivatedAt ? styles.deactivated : isExpired(v.expiresAt) ? styles.expired : styles.available}`}>
+                {v.isUsed ? 'Used' : v.deactivatedAt ? 'Deactivated' : isExpired(v.expiresAt) ? 'Expired' : 'Available'}
               </span>
               <span className={isExpired(v.expiresAt) ? styles.expiredDate : ''}>{formatDate(v.expiresAt)}</span>
               <span>

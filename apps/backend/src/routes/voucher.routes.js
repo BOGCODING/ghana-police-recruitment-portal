@@ -41,7 +41,7 @@ router.post('/generate',
 // Generate bulk vouchers
 router.post('/generate-bulk',
   validateBody(bulkVoucherSchema),
-  voucherController.generateBulkVouchers
+  voucherController.generateBulk
 );
 
 // Export vouchers to CSV
