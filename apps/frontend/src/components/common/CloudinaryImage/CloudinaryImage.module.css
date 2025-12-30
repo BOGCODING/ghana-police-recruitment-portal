@@ -1,0 +1,23 @@
+.wrapper {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.advancedImage {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.placeholder {
+  background-color: #f0f0f0;
+  display: block;
+}
