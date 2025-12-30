@@ -3,9 +3,13 @@ const path = require('path');
 const logger = require('../utils/logger');
 
 /**
- * Environment Variable Validator
- * Ensures all required secrets and configuration keys are present
+ * Sanitize environment variables by removing extra quotes and whitespace
  */
+const sanitizeEnv = (value) => {
+  if (typeof value !== 'string') return value;
+  return value.trim().replace(/^['"]|['"]$/g, '');
+};
+
 const requiredVars = [
   'PORT',
   'NODE_ENV',
@@ -29,16 +33,16 @@ const requiredVars = [
 
 const validateEnv = () => {
   const envPath = path.join(__dirname, '../../../.env');
-  const envExamplePath = path.join(__dirname, '../../../.env.example');
   
   logger.info('Validating environment variables...');
 
-  if (!fs.existsSync(envPath)) {
-    logger.error('.env file is missing!');
-    if (!fs.existsSync(envExamplePath)) {
-      logger.warn('.env.example is also missing.');
-    }
-    return false;
+  // Sanitize all environment variables in process.env
+  Object.keys(process.env).forEach(key => {
+    process.env[key] = sanitizeEnv(process.env[key]);
+  });
+
+  if (!fs.existsSync(envPath) && process.env.NODE_ENV !== 'production') {
+    logger.warn('.env file is missing! (Using process environment variables)');
   }
 
   const missing = [];
@@ -53,7 +57,7 @@ const validateEnv = () => {
     return false;
   }
 
-  logger.info('Environment validation passed!');
+  logger.info('Environment validation passed and sanitized!');
   return true;
 };
 

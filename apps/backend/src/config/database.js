@@ -1,12 +1,15 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
+const { sanitizeEnv } = require('../utils/helpers');
+
+const databaseUrl = sanitizeEnv(process.env.DATABASE_URL);
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
   max: parseInt(process.env.DB_POOL_MAX) || (process.env.NODE_ENV === 'production' ? 10 : 20),
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-  ssl: process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost') 
+  ssl: databaseUrl && !databaseUrl.includes('localhost') 
     ? { rejectUnauthorized: false } 
     : false,
   statement_timeout: 5000, // 5 seconds timeout for all queries

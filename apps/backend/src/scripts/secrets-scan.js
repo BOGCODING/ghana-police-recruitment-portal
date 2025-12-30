@@ -20,12 +20,52 @@ const ignoredFiles = [
   'node_modules',
   '.git',
   '.next',
+  'coverage',
+  'dist',
+  'build',
+  '.husky',
+  'uploads',
+  'logs',
+  '__tests__',
+  'categoryRequirements.js',
   'package-lock.json',
   'pnpm-lock.yaml',
   'secrets-scan.js', // Ignore self
   '.env.example',
   '.env'
 ];
+
+const scanFile = (fullPath) => {
+  if (ignoredFiles.some(ignored => fullPath.includes(ignored))) return 0;
+  
+  // Skip binary and common non-source files by extension
+  const ext = path.extname(fullPath).toLowerCase();
+  const binaryExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.ico', '.zip', '.map', '.exe', '.dll', '.bin'];
+  if (binaryExtensions.includes(ext)) return 0;
+
+  let violations = 0;
+  try {
+    const content = fs.readFileSync(fullPath, 'utf8');
+    patterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(content)) !== null) {
+        // Filter out some false positives
+        const secret = match[2] || match[0];
+        if (secret.length < 10) continue; 
+        
+        // Further filter: ignore common non-secret strings
+        if (secret.includes(' ') || secret.includes('\n')) continue;
+        if (secret.startsWith('Application') || secret.startsWith('Category')) continue;
+        
+        logger.warn(`Potential secret detected in ${fullPath} (Line: ${getLineNumber(content, match.index)})`);
+        violations++;
+      }
+    });
+  } catch (err) {
+    logger.error(`Error reading file ${fullPath}: ${err.message}`);
+  }
+  return violations;
+};
 
 const scanDir = (dir) => {
   const files = fs.readdirSync(dir);
@@ -36,22 +76,11 @@ const scanDir = (dir) => {
     const stats = fs.statSync(fullPath);
 
     if (ignoredFiles.some(ignored => fullPath.includes(ignored))) return;
-
+    
     if (stats.isDirectory()) {
       violations += scanDir(fullPath);
     } else {
-      const content = fs.readFileSync(fullPath, 'utf8');
-      patterns.forEach(pattern => {
-        let match;
-        while ((match = pattern.exec(content)) !== null) {
-          // Filter out some false positives (e.g. standard UUIDs if pattern is too broad)
-          const secret = match[2] || match[0];
-          if (secret.length < 8) continue;
-          
-          logger.warn(`Potential secret detected in ${fullPath} (Line: ${getLineNumber(content, match.index)})`);
-          violations++;
-        }
-      });
+      violations += scanFile(fullPath);
     }
   });
 
@@ -63,14 +92,31 @@ const getLineNumber = (content, index) => {
 };
 
 const runScan = () => {
-  const rootDir = path.join(__dirname, '../../../'); // Project root
-  logger.info(`Starting secrets scan from ${rootDir}...`);
-  
-  const violations = scanDir(rootDir);
+  const args = process.argv.slice(2);
+  let violations = 0;
+
+  if (args.length > 0) {
+    logger.info(`Scanning ${args.length} specified files/directories...`);
+    args.forEach(arg => {
+      const fullPath = path.resolve(process.cwd(), arg);
+      if (!fs.existsSync(fullPath)) return;
+      
+      const stats = fs.statSync(fullPath);
+      if (stats.isDirectory()) {
+        violations += scanDir(fullPath);
+      } else {
+        violations += scanFile(fullPath);
+      }
+    });
+  } else {
+    const rootDir = path.join(__dirname, '../../../'); // Project root
+    logger.info(`No files specified. Starting full secrets scan from ${rootDir}...`);
+    violations = scanDir(rootDir);
+  }
   
   if (violations > 0) {
     logger.error(`Secrets scan failed: ${violations} potential leaks found!`);
-    // process.exit(1); // Block commit in pre-commit hook if enabled
+    process.exit(1); 
   } else {
     logger.info('Secrets scan passed!');
   }

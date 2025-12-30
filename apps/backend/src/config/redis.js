@@ -1,6 +1,7 @@
 const Redis = require('ioredis');
 const { Redis: UpstashRedis } = require('@upstash/redis');
 const logger = require('../utils/logger');
+const { sanitizeEnv } = require('../utils/helpers');
 
 let redis = null;
 let upstash = null;
@@ -8,8 +9,8 @@ let upstash = null;
 // Initialize Upstash REST if credentials are provided
 if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
   try {
-    const url = process.env.UPSTASH_REDIS_REST_URL.replace(/"/g, '');
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN.replace(/"/g, '');
+    const url = sanitizeEnv(process.env.UPSTASH_REDIS_REST_URL);
+    const token = sanitizeEnv(process.env.UPSTASH_REDIS_REST_TOKEN);
     
     upstash = new UpstashRedis({
       url,
@@ -19,7 +20,7 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
   } catch (error) {
     logger.error('Failed to initialize Upstash Redis REST client:', { 
       message: error.message,
-      url: process.env.UPSTASH_REDIS_REST_URL.substring(0, 15) + '...' 
+      url: process.env.UPSTASH_REDIS_REST_URL ? process.env.UPSTASH_REDIS_REST_URL.substring(0, 15) + '...' : 'N/A'
     });
   }
 }
@@ -27,10 +28,15 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
 const backoffUtils = require('../utils/backoff.utils');
 
 const createRedisClient = () => {
+  const host = sanitizeEnv(process.env.REDIS_HOST) || 'localhost';
+  const port = parseInt(sanitizeEnv(process.env.REDIS_PORT)) || 6379;
+  const password = sanitizeEnv(process.env.REDIS_PASSWORD) || undefined;
+  const redisUrl = sanitizeEnv(process.env.REDIS_URL);
+
   const config = {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT) || 6379,
-    password: process.env.REDIS_PASSWORD || undefined,
+    host,
+    port,
+    password,
     maxRetriesPerRequest: 3,
     connectTimeout: 10000, // 10 seconds timeout
     retryDelayOnFailover: 100,
@@ -46,12 +52,12 @@ const createRedisClient = () => {
   };
 
   // Support REDIS_URL if provided
-  const client = process.env.REDIS_URL 
-    ? new Redis(process.env.REDIS_URL, { 
+  const client = redisUrl 
+    ? new Redis(redisUrl, { 
       maxRetriesPerRequest: 3,
       connectTimeout: 10000,
       lazyConnect: true,
-      tls: process.env.REDIS_URL.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
+      tls: redisUrl.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
     })
     : new Redis(config);
 

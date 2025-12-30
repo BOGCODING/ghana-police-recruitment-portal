@@ -106,14 +106,22 @@ const formatDocument = (doc) => {
   };
 };
 
+/**
+ * Sanitize environment variables by removing extra quotes and whitespace
+ */
+const sanitizeEnv = (value) => {
+  if (typeof value !== 'string') return value;
+  return value.trim().replace(/^['"]|['"]$/g, '');
+};
+
 module.exports = {
   calculateAge,
   meetsHeightRequirement,
   normalizePhoneNumber,
-
   formatDate,
   deepClone,
   parsePagination,
   formatDocument,
-  toUpperCase
+  toUpperCase,
+  sanitizeEnv
 };

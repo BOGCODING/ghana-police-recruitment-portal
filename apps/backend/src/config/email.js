@@ -1,18 +1,25 @@
 const nodemailer = require('nodemailer');
 const logger = require('../utils/logger');
+const { sanitizeEnv } = require('../utils/helpers');
 
 let transporter = null;
 
 const createTransporter = async () => {
+  const host = sanitizeEnv(process.env.SMTP_HOST) || 'smtp.gmail.com';
+  const port = parseInt(sanitizeEnv(process.env.SMTP_PORT)) || 587;
+  const user = sanitizeEnv(process.env.SMTP_USER);
+  const pass = sanitizeEnv(process.env.SMTP_PASS);
+  const secure = sanitizeEnv(process.env.SMTP_SECURE) === 'true';
+
   // If credentials are provided, use them
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+  if (user && pass) {
     return nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com', // Default to Gmail if only user/pass provided
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
+      host,
+      port,
+      secure,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user,
+        pass,
       },
     });
   }
