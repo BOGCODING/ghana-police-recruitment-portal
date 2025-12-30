@@ -1,11 +1,11 @@
 const { query, transaction } = require('../config/database');
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../config/jwt');
 const { hashPassword, comparePassword, validatePasswordStrength } = require('../utils/passwordHasher');
-const { generateResetToken, generateApplicationId } = require('../utils/generators');
+const { generateResetToken, generateApplicationId, generateToken } = require('../utils/generators');
 const { successResponse, errorResponse } = require('../utils/responseHandler');
 const { normalizePhoneNumber, toUpperCase, formatDocument } = require('../utils/helpers');
 const { cacheSet, cacheDelete } = require('../config/redis');
-const { sendRegistrationConfirmation, sendPasswordReset } = require('../services/email.service');
+const { sendRegistrationConfirmation, sendPasswordReset, sendEmailVerification } = require('../services/email.service');
 const logger = require('../utils/logger');
 
 /**
@@ -109,14 +109,17 @@ const register = async (req, res) => {
     // Hash password
     const hashedPassword = await hashPassword(password);
     
+    // Generate email verification token
+    const emailVerificationToken = generateToken(32);
+    
     // Create applicant in transaction
     const applicant = await transaction(async (client) => {
-      // Create applicant
+      // Create applicant with verification token
       const applicantResult = await client.query(
-        `INSERT INTO applicants ("serialNumber", email, "phoneNumber", "passwordHash", status)
-         VALUES ($1, $2, $3, $4, 'REGISTERED')
+        `INSERT INTO applicants ("serialNumber", email, "phoneNumber", "passwordHash", status, "emailVerified", "emailVerificationToken")
+         VALUES ($1, $2, $3, $4, 'REGISTERED', false, $5)
          RETURNING id, "serialNumber", email, "phoneNumber", status, "createdAt"`,
-        [toUpperCase(cleanSerial), cleanEmail, normalizePhoneNumber(cleanPhone), hashedPassword]
+        [toUpperCase(cleanSerial), cleanEmail, normalizePhoneNumber(cleanPhone), hashedPassword, emailVerificationToken]
       );
       
       // Mark voucher as used and ensure contact details are saved
@@ -194,6 +197,12 @@ const register = async (req, res) => {
     // Cache session in Redis
     await cacheSet(`user:${applicant.id}:session`, refreshToken, 60 * 60 * 24 * 7); // 7 days
 
+    // Send email verification link (async)
+    sendEmailVerification(applicant.email, {
+      token: emailVerificationToken,
+      serialNumber: applicant.serialNumber
+    }).catch(err => logger.error('Failed to send email verification:', err));
+    
     // Send registration confirmation email (async)
     sendRegistrationConfirmation(applicant.email, {
       serialNumber: applicant.serialNumber,

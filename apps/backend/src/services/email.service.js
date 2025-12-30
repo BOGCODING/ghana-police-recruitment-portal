@@ -382,10 +382,83 @@ const sendPasswordReset = async (to, token) => {
   }
 };
 
+/**
+ * Send email verification link
+ */
+const sendEmailVerification = async (to, data) => {
+  const { token, serialNumber } = data;
+  const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #006B3F 0%, #004D2C 100%); color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+        .btn { display: inline-block; background: #006B3F; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🛡️ Ghana Police Service</h1>
+          <p>Email Verification</p>
+        </div>
+        <div class="content">
+          <h2>Verify Your Email Address</h2>
+          <p>Thank you for registering with the Ghana Police Service Recruitment Portal.</p>
+          <p>Your serial number is: <strong>${serialNumber}</strong></p>
+          <p>Please click the button below to verify your email address and complete your registration:</p>
+          <p style="text-align: center; margin: 30px 0;">
+            <a href="${verifyUrl}" class="btn">Verify Email Address</a>
+          </p>
+          <div class="warning">
+            <strong>⚠️ Important:</strong>
+            <ul>
+              <li>This link is for one-time use only</li>
+              <li>If you did not register for this account, please ignore this email</li>
+            </ul>
+          </div>
+          <p>If the button doesn't work, copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; font-size: 12px; color: #666;">${verifyUrl}</p>
+        </div>
+        <div class="footer">
+          <p>© 2025 Ghana Police Service. All rights reserved.</p>
+          <p>This is an automated email. Please do not reply.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"Ghana Police Recruitment" <${process.env.EMAIL_FROM || 'noreply@gps.gov.gh'}>`,
+      to,
+      subject: 'Verify Your Email - GPS Recruitment Portal',
+      html
+    });
+
+    logger.info(`Email verification link sent to ${to}: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    logger.error('Failed to send email verification:', error);
+    // Log the verification URL so it can still be used manually in case of email failure
+    logger.info(`Verification URL for ${to}: ${verifyUrl}`);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = {
   sendVoucherCredentials,
   sendRegistrationConfirmation,
   sendApplicationStatusUpdate,
   sendApplicationSubmissionConfirmation,
-  sendPasswordReset
+  sendPasswordReset,
+  sendEmailVerification
 };

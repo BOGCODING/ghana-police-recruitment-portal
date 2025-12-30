@@ -14,19 +14,17 @@ const generateApplicationId = async () => {
 
 /**
  * Generate a secure voucher code
- * Format: GPS-XXXX-XXXX
+ * Format: GPS-YYYY-XXXXXXX
  */
 const generateVoucherCode = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Safe alphanumeric
   let part1 = '';
-  let part2 = '';
   
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 7; i++) {
     part1 += chars.charAt(Math.floor(Math.random() * chars.length));
-    part2 += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   
-  return `${VOUCHER_PREFIX}-${part1}-${part2}`;
+  return `${VOUCHER_PREFIX}-${new Date().getFullYear()}-${part1}`;
 };
 
 /**
@@ -38,7 +36,7 @@ const generateSerialNumber = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Safe alphanumeric
   let random = '';
   
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < 6; i++) {
     random += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   
@@ -59,11 +57,14 @@ const generateToken = (length = 32) => {
   return crypto.randomBytes(length).toString('hex');
 };
 
+const generateResetToken = () => generateToken(32);
+
 module.exports = {
   generateApplicationId,
   generateVoucherCode,
   generateSerialNumber,
   generatePinCode,
   generateToken,
+  generateResetToken,
   generateFileUUID: uuidv4
 };
