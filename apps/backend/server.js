@@ -77,16 +77,23 @@ process.on('SIGTERM', () => {
 });
 
 const cluster = require('cluster');
-
-const numCPUs = process.env.WEB_CONCURRENCY || 1; // Default to 1 for safety on free tier
+const os = require('os');
+const numCPUs = os.cpus().length;
 
 // If we are the primary process, fork workers
 if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
   logger.info(`Primary ${process.pid} is running`);
-  logger.info(`Forking ${numCPUs} workers for high concurrency...`);
+  
+  // Use WEB_CONCURRENCY if set (Render default), otherwise limit to max 2 for memory safety on free tier
+  // If we have plenty of RAM (not free tier), we can increase this
+  const desiredWorkers = process.env.WEB_CONCURRENCY 
+    ? parseInt(process.env.WEB_CONCURRENCY) 
+    : (os.freemem() > 1024 * 1024 * 1024 ? Math.min(numCPUs, 4) : 1);
+
+  logger.info(`Forking ${desiredWorkers} workers for concurrency (Available CPUs: ${numCPUs})...`);
 
   // Fork workers.
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < desiredWorkers; i++) {
     cluster.fork();
   }
 
