@@ -8,9 +8,12 @@ let upstash = null;
 // Initialize Upstash REST if credentials are provided
 if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
   try {
+    const url = process.env.UPSTASH_REDIS_REST_URL.replace(/"/g, '');
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN.replace(/"/g, '');
+    
     upstash = new UpstashRedis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      url,
+      token,
     });
     logger.info('Upstash Redis REST client initialized');
   } catch (error) {
