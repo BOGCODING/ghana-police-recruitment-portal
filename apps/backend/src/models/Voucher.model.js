@@ -251,6 +251,7 @@ const VoucherModel = {
       offset = 0,
       isUsed = null,
       isExpired = null,
+      isDeactivated = null,
       generatedBy = null,
       search = null,
       sortBy = 'createdAt',
@@ -271,6 +272,12 @@ const VoucherModel = {
       conditions.push('"expiresAt" < NOW()');
     } else if (isExpired === false) {
       conditions.push('"expiresAt" >= NOW()');
+    }
+
+    if (isDeactivated === true) {
+      conditions.push('"deactivatedAt" IS NOT NULL');
+    } else if (isDeactivated === false) {
+      conditions.push('"deactivatedAt" IS NULL');
     }
 
     if (generatedBy) {
@@ -384,7 +391,8 @@ const VoucherModel = {
         COUNT(*) as total,
         SUM(CASE WHEN "isUsed" = TRUE THEN 1 ELSE 0 END) as used,
         SUM(CASE WHEN "isUsed" = FALSE AND "expiresAt" > NOW() AND "deactivatedAt" IS NULL THEN 1 ELSE 0 END) as unused,
-        SUM(CASE WHEN "expiresAt" < NOW() AND "isUsed" = FALSE THEN 1 ELSE 0 END) as expired
+        SUM(CASE WHEN "expiresAt" < NOW() AND "isUsed" = FALSE THEN 1 ELSE 0 END) as expired,
+        SUM(CASE WHEN "deactivatedAt" IS NOT NULL THEN 1 ELSE 0 END) as deactivated
       FROM vouchers
     `);
     const row = result.rows[0];
@@ -392,7 +400,8 @@ const VoucherModel = {
       total: parseInt(row.total) || 0,
       used: parseInt(row.used) || 0,
       unused: parseInt(row.unused) || 0,
-      expired: parseInt(row.expired) || 0
+      expired: parseInt(row.expired) || 0,
+      deactivated: parseInt(row.deactivated) || 0
     };
   },
 

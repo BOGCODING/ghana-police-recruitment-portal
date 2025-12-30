@@ -38,7 +38,7 @@ const validateVoucherSchema = Joi.object({
 const voucherQuerySchema = Joi.object({
   page: Joi.number().min(1).optional(),
   limit: Joi.number().min(1).max(100).optional(),
-  status: Joi.string().valid('all', 'used', 'unused', 'expired').optional(),
+  status: Joi.string().valid('all', 'used', 'unused', 'expired', 'deactivated').optional(),
   search: Joi.string().max(100).optional(),
   startDate: Joi.date().iso().optional(),
   endDate: Joi.date().iso().optional()

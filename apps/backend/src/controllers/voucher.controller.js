@@ -22,7 +22,7 @@ const checkVoucher = async (req, res) => {
     const cleanPhone = phoneNumber?.trim();
     
     const result = await query(
-      `SELECT id, code, "expiresAt", "isUsed", email, "phoneNumber"
+      `SELECT id, code, "expiresAt", "isUsed", email, "phoneNumber", "deactivatedAt"
        FROM vouchers WHERE "serialNumber" = $1 AND "pinCode" = $2`,
       [toUpperCase(cleanSerial), toUpperCase(cleanPin)]
     );
@@ -32,6 +32,11 @@ const checkVoucher = async (req, res) => {
     }
     
     const voucher = result.rows[0];
+
+    // Check if deactivated
+    if (voucher.deactivatedAt) {
+      return errorResponse(res, 'This voucher has been deactivated', 400);
+    }
 
     // Verify assigned email if present
     if (voucher.email && voucher.email.toLowerCase() !== cleanEmail) {
@@ -189,9 +194,11 @@ const exportToCSV = async (req, res) => {
     let paramCount = 1;
     
     if (status === 'unused') {
-      whereClause += ' AND "isUsed" = false';
+      whereClause += ' AND "isUsed" = false AND "deactivatedAt" IS NULL AND "expiresAt" > NOW()';
     } else if (status === 'used') {
       whereClause += ' AND "isUsed" = true';
+    } else if (status === 'deactivated') {
+      whereClause += ' AND "deactivatedAt" IS NOT NULL';
     }
     
     if (startDate) {
@@ -205,7 +212,7 @@ const exportToCSV = async (req, res) => {
     
     const result = await query(
       `SELECT code, email, "phoneNumber", "serialNumber", "pinCode", 
-              "isUsed", "expiresAt", "createdAt"
+              "isUsed", "expiresAt", "createdAt", "deactivatedAt"
        FROM vouchers WHERE ${whereClause}
        ORDER BY "createdAt" DESC`,
       values
@@ -223,7 +230,8 @@ const exportToCSV = async (req, res) => {
         { id: 'phoneNumber', title: 'Phone Number' },
         { id: 'isUsed', title: 'Used' },
         { id: 'expiresAt', title: 'Expires At' },
-        { id: 'createdAt', title: 'Created At' }
+        { id: 'createdAt', title: 'Created At' },
+        { id: 'deactivatedAt', title: 'Deactivated At' }
       ]
     });
     
@@ -256,11 +264,13 @@ const getAllVouchers = async (req, res) => {
     let paramCount = 1;
     
     if (status === 'unused') {
-      whereClause += ' AND "isUsed" = false AND "expiresAt" > NOW()';
+      whereClause += ' AND "isUsed" = false AND "expiresAt" > NOW() AND "deactivatedAt" IS NULL';
     } else if (status === 'used') {
-      whereClause += ' AND "isUsed" = true';
+      whereClause += ' AND "isUsed" = true'; // Used vouchers can be deactivated but they are primarily "used"
     } else if (status === 'expired') {
-      whereClause += ' AND "isUsed" = false AND "expiresAt" <= NOW()';
+      whereClause += ' AND "isUsed" = false AND "expiresAt" <= NOW() AND "deactivatedAt" IS NULL';
+    } else if (status === 'deactivated') {
+      whereClause += ' AND "deactivatedAt" IS NOT NULL';
     }
     
     if (search) {
@@ -315,14 +325,16 @@ const getVoucherStats = async (req, res) => {
       SELECT 
         COUNT(*) as total,
         COUNT(*) FILTER (WHERE "isUsed" = true) as used,
-        COUNT(*) FILTER (WHERE "isUsed" = false AND "expiresAt" > NOW()) as available,
+        COUNT(*) FILTER (WHERE "isUsed" = false AND "expiresAt" > NOW() AND "deactivatedAt" IS NULL) as available,
         COUNT(*) FILTER (WHERE "isUsed" = false AND "expiresAt" <= NOW()) as expired,
+        COUNT(*) FILTER (WHERE "deactivatedAt" IS NULL) as active,
+        COUNT(*) FILTER (WHERE "deactivatedAt" IS NOT NULL) as deactivated,
         COUNT(*) FILTER (WHERE "createdAt" > NOW() - INTERVAL '24 hours') as "generatedToday",
         COUNT(*) FILTER (WHERE "usedAt" > NOW() - INTERVAL '24 hours') as "usedToday"
       FROM vouchers
     `);
     
-    const stats = statsResult.rows[0] || defaultStats;
+    const stats = statsResult.rows[0];
     
     // Get voucher price with fallback
     let voucherPrice = 100;
@@ -336,7 +348,8 @@ const getVoucherStats = async (req, res) => {
     return successResponse(res, {
       ...stats,
       voucherPrice,
-      totalRevenue: parseInt(stats.total || 0) * voucherPrice,
+      // Total revenue based on non-deactivated vouchers
+      totalRevenue: parseInt(stats.active || 0) * voucherPrice,
       realizedRevenue: parseInt(stats.used || 0) * voucherPrice
     });
     

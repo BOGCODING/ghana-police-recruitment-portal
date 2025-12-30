@@ -18,7 +18,10 @@ const AuthService = {
   async validateVoucher(serialNumber, pinCode) {
     const result = await query(
       `SELECT * FROM vouchers 
-       WHERE "serialNumber" = $1 AND "pinCode" = $2 AND "isUsed" = false AND "expiresAt" > NOW()`,
+       WHERE "serialNumber" = $1 AND "pinCode" = $2 
+       AND "isUsed" = false 
+       AND "expiresAt" > NOW()
+       AND "deactivatedAt" IS NULL`,
       [serialNumber, pinCode] // DTO already uppercased these
     );
     return result.rows[0];
