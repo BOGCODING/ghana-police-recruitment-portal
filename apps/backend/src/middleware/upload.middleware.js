@@ -115,17 +115,46 @@ const validateMagicBytes = (buffer) => {
   return null;
 };
 
+const cloudinary = require('../config/cloudinary');
+const streamifier = require('streamifier');
+
 /**
- * Multer storage configuration
+ * Configure storage based on environment
+ * Production: Memory storage (for Cloudinary upload)
+ * Development: Disk storage
  */
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, UPLOAD_DIRS.temp);
-  },
-  filename: (req, file, cb) => {
-    cb(null, generateSecureFilename(file.originalname));
-  }
-});
+const isProduction = process.env.NODE_ENV === 'production';
+
+const storage = isProduction 
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, UPLOAD_DIRS.temp);
+    },
+    filename: (req, file, cb) => {
+      cb(null, generateSecureFilename(file.originalname));
+    }
+  });
+
+/**
+ * Helper to upload buffer to Cloudinary
+ */
+const uploadToCloudinary = (buffer, folder, filename) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: `gps-portal/${folder}`,
+        public_id: path.parse(filename).name, // proper public_id without extension
+        resource_type: 'auto'
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    streamifier.createReadStream(buffer).pipe(uploadStream);
+  });
+};
 
 /**
  * File filter
@@ -174,57 +203,83 @@ const validateUploadedFile = async (req, res, next) => {
 
     // Validate file size
     if (req.file.size > config.maxSize) {
-      fs.unlinkSync(req.file.path);
+      if (!isProduction) fs.unlinkSync(req.file.path);
       throw new AppError(`File too large. Max size: ${config.maxSize / (1024 * 1024)}MB`, 400);
     }
 
-    // SANITIZE: Enforce allowed list on original filename before any further processing
+    // SANITIZE: Enforce allowed list on original filename
     req.file.originalname = sanitizeFilename(req.file.originalname);
+    
+    // Validate Magic Bytes
+    let buffer;
+    if (isProduction) {
+      buffer = req.file.buffer; // In memory
+    } else {
+      buffer = fs.readFileSync(req.file.path); // On disk
+    }
 
-    // Read file for magic byte validation
-    const buffer = fs.readFileSync(req.file.path);
     const detectedType = validateMagicBytes(buffer);
 
     if (!detectedType || !config.mimeTypes.includes(detectedType)) {
-      fs.unlinkSync(req.file.path);
+      if (!isProduction) fs.unlinkSync(req.file.path);
       throw new AppError('File content does not match file extension', 400);
     }
 
     // For images, validate dimensions
     if (detectedType.startsWith('image/') && config.dimensions) {
       try {
-        const metadata = await sharp(req.file.path).metadata();
+        const metadata = await sharp(buffer).metadata();
         const { minWidth, minHeight, maxWidth, maxHeight } = config.dimensions;
 
         if (metadata.width < minWidth || metadata.height < minHeight) {
-          fs.unlinkSync(req.file.path);
+          if (!isProduction) fs.unlinkSync(req.file.path);
           throw new AppError(`Image too small. Minimum: ${minWidth}x${minHeight}px`, 400);
         }
 
         if (metadata.width > maxWidth || metadata.height > maxHeight) {
-          fs.unlinkSync(req.file.path);
+          if (!isProduction) fs.unlinkSync(req.file.path);
           throw new AppError(`Image too large. Maximum: ${maxWidth}x${maxHeight}px`, 400);
         }
       } catch (err) {
+        if (!isProduction) fs.unlinkSync(req.file.path);
         if (err instanceof AppError) throw err;
-        fs.unlinkSync(req.file.path);
         throw new AppError('Invalid image file', 400);
       }
     }
 
-    // Move file to permanent location
-    const finalFilename = req.file.filename;
-    const finalPath = path.join(UPLOAD_DIRS.documents, finalFilename);
-    fs.renameSync(req.file.path, finalPath);
+    // File Handling Strategy
+    const finalFilename = generateSecureFilename(req.file.originalname);
 
-    // Keep absolute path for subsequent middleware processing
-    req.file.path = finalPath;
-    
-    // Store relative paths for database portability - use new properties to avoid confusion
-    req.file.dbPath = `documents/${finalFilename}`;
-    req.file.url = `/uploads/documents/${finalFilename}`;
+    if (isProduction) {
+      // --- PRODUCTION: Upload to Cloudinary ---
+      try {
+        const result = await uploadToCloudinary(buffer, 'documents', finalFilename);
+        
+        // Normalize req.file properties for the controller
+        req.file.filename = finalFilename; // Consistent filename
+        req.file.path = result.secure_url; // Remote URL
+        req.file.cloudinaryId = result.public_id; // For deletion
+        req.file.dbPath = result.public_id; // Stored in DB
+        req.file.url = result.secure_url; // Public URL
+        
+        logger.info(`Uploaded to Cloudinary: ${result.public_id}`);
+      } catch (uploadErr) {
+        logger.error('Cloudinary upload error:', uploadErr);
+        throw new AppError('Failed to upload file to storage', 500);
+      }
+
+    } else {
+      // --- DEVELOPMENT: Local Disk Storage ---
+      const finalPath = path.join(UPLOAD_DIRS.documents, finalFilename);
+      fs.renameSync(req.file.path, finalPath);
+
+      req.file.path = finalPath;
+      req.file.filename = finalFilename;
+      req.file.dbPath = `documents/${finalFilename}`;
+      req.file.url = `/uploads/documents/${finalFilename}`;
+    }
+
     req.file.documentType = documentType;
-
     next();
   } catch (error) {
     next(error);
@@ -240,20 +295,44 @@ const processPassportPhoto = async (req, res, next) => {
       return next();
     }
 
-    const inputPath = req.file.path;
     const outputFilename = `processed-${req.file.filename}`;
-    const outputPath = path.join(UPLOAD_DIRS.processed, outputFilename);
+    
+    // Process image buffer
+    let inputBuffer;
+    if (isProduction) {
+      // If we already uploaded to Cloudinary, this is inefficient (uploading twice)
+      // Ideally, we'd process BEFORE uploading, but for now let's use the buffer we have
+      inputBuffer = req.file.buffer;
+    } else {
+      inputBuffer = fs.readFileSync(req.file.path);
+    }
 
-    await sharp(inputPath)
+    const processedBuffer = await sharp(inputBuffer)
       .resize(600, 600, { fit: 'cover', position: 'center' })
       .jpeg({ quality: 85 })
-      .toFile(outputPath);
+      .toBuffer();
 
-    // Keep original but add processed path
-    req.file.processedPath = `processed/${outputFilename}`;
-    req.file.processedUrl = `/uploads/processed/${outputFilename}`;
+    if (isProduction) {
+      // Upload processed version to Cloudinary
+      try {
+        const result = await uploadToCloudinary(processedBuffer, 'processed', outputFilename);
+        
+        req.file.processedPath = result.public_id;
+        req.file.processedUrl = result.secure_url;
+        logger.info(`Processed passport photo uploaded: ${result.public_id}`);
+      } catch (err) {
+        logger.error('Failed to upload processed passport photo', err);
+      }
+    } else {
+      // Save processed version to disk
+      const outputPath = path.join(UPLOAD_DIRS.processed, outputFilename);
+      fs.writeFileSync(outputPath, processedBuffer);
+      
+      req.file.processedPath = `processed/${outputFilename}`;
+      req.file.processedUrl = `/uploads/processed/${outputFilename}`;
+      logger.info(`Processed passport photo saved: ${outputFilename}`);
+    }
 
-    logger.info(`Processed passport photo: ${outputFilename}`);
     next();
   } catch (error) {
     logger.error('Passport photo processing error:', error);
@@ -268,7 +347,13 @@ const scanForMalware = async (req, res, next) => {
   try {
     if (!req.file) return next();
 
-    const buffer = fs.readFileSync(req.file.path);
+    let buffer;
+    if (isProduction) {
+      buffer = req.file.buffer;
+    } else {
+      buffer = fs.readFileSync(req.file.path);
+    }
+
     const content = buffer.toString('utf8', 0, 1000);
 
     // Check for suspicious patterns
@@ -286,7 +371,7 @@ const scanForMalware = async (req, res, next) => {
     );
 
     if (isSuspicious) {
-      fs.unlinkSync(req.file.path);
+      if (!isProduction) fs.unlinkSync(req.file.path);
       throw new AppError('File rejected: contains suspicious content', 400);
     }
 
@@ -303,11 +388,15 @@ const scanForMalware = async (req, res, next) => {
  * Get absolute path from relative path
  */
 const getAbsolutePath = (relativePath) => {
+  // If it's a Cloudinary URL or ID, return null or handle appropriately
+  if (relativePath.startsWith('http') || !relativePath.includes('/') || relativePath.startsWith('gps-portal')) {
+    return null; // Not a local path
+  }
+
   // 1. Resolve the path to handle .. and . segments
   const resolvedPath = path.resolve(UPLOAD_BASE, relativePath);
   
   // 2. Ensure the resolved path actually starts with our UPLOAD_BASE
-  // This prevents ../../etc/passwd type attacks
   if (!resolvedPath.startsWith(path.resolve(UPLOAD_BASE))) {
     logger.warn(`Potential Path Traversal Attempt: ${relativePath} -> ${resolvedPath}`);
     throw new AppError('Invalid file path: Access denied', 403);
@@ -319,14 +408,41 @@ const getAbsolutePath = (relativePath) => {
 /**
  * Delete file utility
  */
-const deleteFile = (filePath) => {
+const deleteFile = async (filePath) => {
   try {
-    const absolutePath = getAbsolutePath(filePath);
-    if (fs.existsSync(absolutePath)) {
-      fs.unlinkSync(absolutePath);
+    if (!filePath) return false;
+
+    if (isProduction) {
+      // Cloudinary deletion
+      // Check if it's a full URL or public ID. We need public ID.
+      // Assuming dbPath stores public_id (e.g. "gps-portal/documents/filename")
+      // If filePath is a URL, extract public ID
+      let publicId = filePath;
+      
+      if (filePath.startsWith('http')) {
+        // Very basic extraction, might just use dbPath
+        // Ideally we store public_id in DB. 
+        // For now, let's assume filePath passed here IS the dbPath which we set to public_id
+      }
+      
+      // If it looks like a local path but we are in prod, ignore or warn?
+      if (filePath.includes('uploads/')) {
+        return false; // Can't delete local files in prod
+      }
+
+      await cloudinary.uploader.destroy(publicId);
+      logger.info(`Deleted file from Cloudinary: ${publicId}`);
       return true;
+
+    } else {
+      // Local deletion
+      const absolutePath = getAbsolutePath(filePath);
+      if (absolutePath && fs.existsSync(absolutePath)) {
+        fs.unlinkSync(absolutePath);
+        return true;
+      }
+      return false;
     }
-    return false;
   } catch (error) {
     logger.error('File deletion error:', error);
     return false;

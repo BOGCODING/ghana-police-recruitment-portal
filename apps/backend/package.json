@@ -53,6 +53,7 @@
     "sanitize-html": "^2.11.0",
     "sharp": "^0.33.1",
     "socket.io": "^4.7.2",
+    "streamifier": "^0.1.1",
     "uuid": "^9.0.1",
     "winston": "^3.11.0",
     "xlsx": "^0.18.5",
