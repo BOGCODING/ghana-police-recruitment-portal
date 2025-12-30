@@ -6,7 +6,7 @@ let transporter = null;
 
 const createTransporter = async () => {
   const host = sanitizeEnv(process.env.SMTP_HOST) || 'smtp.gmail.com';
-  const port = parseInt(sanitizeEnv(process.env.SMTP_PORT)) || 587;
+  const port = parseInt(sanitizeEnv(process.env.SMTP_PORT)) || 465;
   const user = sanitizeEnv(process.env.SMTP_USER);
   const pass = sanitizeEnv(process.env.SMTP_PASS);
   const secure = sanitizeEnv(process.env.SMTP_SECURE) === 'true';
