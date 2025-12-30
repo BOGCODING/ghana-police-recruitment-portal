@@ -48,7 +48,7 @@ services:
     plan: free
     rootDir: apps/frontend
     buildCommand: npm install -g pnpm@latest && pnpm install --no-frozen-lockfile && pnpm run build
-    startCommand: pnpm run start
+    startCommand: HOSTNAME=0.0.0.0 npx next start -p $PORT
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION
@@ -79,7 +79,7 @@ services:
     plan: free
     rootDir: apps/admin
     buildCommand: npm install -g pnpm@latest && pnpm install --no-frozen-lockfile && pnpm run build
-    startCommand: pnpm run start
+    startCommand: HOSTNAME=0.0.0.0 npx next start -p $PORT
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION

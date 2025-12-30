@@ -2,7 +2,7 @@
 
 
 const nextConfig = {
-  output: 'standalone',
+  // Removed output: 'standalone' - causes module resolution issues with pnpm
   // experimental: {
   //   outputFileTracingRoot: path.join(__dirname, '../../'),
   // },
