@@ -8,11 +8,11 @@ const pool = new Pool({
   connectionString: databaseUrl,
   max: parseInt(process.env.DB_POOL_MAX) || (process.env.NODE_ENV === 'production' ? 10 : 20),
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000, // Increased for Render cold starts
   ssl: databaseUrl && !databaseUrl.includes('localhost') 
     ? { rejectUnauthorized: false } 
     : false,
-  statement_timeout: 5000, // 5 seconds timeout for all queries
+  statement_timeout: 30000, // 30 seconds for cold start scenarios
 });
 
 // Test connection

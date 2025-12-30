@@ -297,6 +297,19 @@ const SystemSetting = require('../models/SystemSetting.model');
  * Get voucher statistics
  */
 const getVoucherStats = async (req, res) => {
+  // Default fallback stats for cold start scenarios
+  const defaultStats = {
+    total: '0',
+    used: '0',
+    available: '0',
+    expired: '0',
+    generatedToday: '0',
+    usedToday: '0',
+    voucherPrice: 100,
+    totalRevenue: 0,
+    realizedRevenue: 0
+  };
+
   try {
     const statsResult = await query(`
       SELECT 
@@ -309,20 +322,28 @@ const getVoucherStats = async (req, res) => {
       FROM vouchers
     `);
     
-    const stats = statsResult.rows[0];
-    const price = await SystemSetting.get('voucher_price') || 100;
-    const voucherPrice = parseFloat(price);
+    const stats = statsResult.rows[0] || defaultStats;
+    
+    // Get voucher price with fallback
+    let voucherPrice = 100;
+    try {
+      const price = await SystemSetting.get('voucher_price');
+      voucherPrice = price ? parseFloat(price) : 100;
+    } catch (priceError) {
+      logger.warn('Failed to get voucher price, using default:', priceError.message);
+    }
 
     return successResponse(res, {
       ...stats,
       voucherPrice,
-      totalRevenue: stats.total * voucherPrice,
-      realizedRevenue: stats.used * voucherPrice
+      totalRevenue: parseInt(stats.total || 0) * voucherPrice,
+      realizedRevenue: parseInt(stats.used || 0) * voucherPrice
     });
     
   } catch (error) {
     logger.error('Get voucher stats error:', error);
-    return errorResponse(res, 'Failed to get voucher stats', 500);
+    // Return default stats instead of error to prevent frontend crash
+    return successResponse(res, defaultStats, 'Stats temporarily unavailable - using defaults');
   }
 };
 
