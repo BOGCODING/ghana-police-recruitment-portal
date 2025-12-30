@@ -52,7 +52,8 @@ const CloudinaryImage = ({
   if (isUrl || !hasCloudConfig) {
     // Check if we have dimensions to use next/image
     if (width && height) {
-       const isStatic = src.startsWith('blob:') || src.startsWith('data:');
+       // Skip optimization for blob/data URLs and /uploads/ paths (proxied from backend)
+       const shouldSkipOptimization = src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('/uploads');
        
        return (
         <Image 
@@ -63,14 +64,15 @@ const CloudinaryImage = ({
           className={`${styles.image} ${className}`}
           priority={priority}
           style={style}
-          unoptimized={isStatic} // Skip optimization for blob/data URLs
+          unoptimized={shouldSkipOptimization}
           {...props}
         />
       );
     }
     
     // Use next/image with fill when no explicit dimensions (requires positioned container)
-    const isStatic = src.startsWith('blob:') || src.startsWith('data:');
+    // Skip optimization for blob/data URLs and /uploads/ paths (proxied from backend)
+    const shouldSkipOptimization = src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('/uploads');
     return (
       <div 
         className={`${styles.fillWrapper} ${className}`} 
@@ -83,7 +85,7 @@ const CloudinaryImage = ({
           className={styles.fillImage}
           priority={priority}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          unoptimized={isStatic}
+          unoptimized={shouldSkipOptimization}
           {...props}
         />
       </div>
