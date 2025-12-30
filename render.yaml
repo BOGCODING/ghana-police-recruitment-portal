@@ -10,7 +10,7 @@ services:
     runtime: node
     plan: free
     rootDir: apps/backend
-    buildCommand: npm install -g pnpm@latest && pnpm install
+    buildCommand: npm install -g pnpm@latest && pnpm install --no-frozen-lockfile
     startCommand: pnpm run migrate && node server.js
     healthCheckPath: /api/health
     envVars:
@@ -47,7 +47,7 @@ services:
     runtime: node
     plan: free
     rootDir: apps/frontend
-    buildCommand: npm install -g pnpm@latest && pnpm install && pnpm run build
+    buildCommand: npm install -g pnpm@latest && pnpm install --no-frozen-lockfile && pnpm run build
     startCommand: pnpm run start
     healthCheckPath: /
     envVars:
@@ -78,7 +78,7 @@ services:
     runtime: node
     plan: free
     rootDir: apps/admin
-    buildCommand: npm install -g pnpm@latest && pnpm install && pnpm run build
+    buildCommand: npm install -g pnpm@latest && pnpm install --no-frozen-lockfile && pnpm run build
     startCommand: pnpm run start
     healthCheckPath: /
     envVars:
