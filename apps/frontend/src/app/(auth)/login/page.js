@@ -1,13 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './styles.module.css';
 
 export default function LoginPage() {
-  const recaptchaRef = useRef(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -43,18 +41,10 @@ export default function LoginPage() {
         localStorage.removeItem('rememberedEmail');
       }
 
-      const captchaToken = recaptchaRef.current?.getValue();
-      if (!captchaToken && process.env.NODE_ENV === 'production') {
-        setError('Please complete the CAPTCHA verification');
-        setLoading(false);
-        return;
-      }
-
-      await login(email, password, captchaToken);
+      await login(email, password);
       router.push('/dashboard');
     } catch (err) {
       setError(err.message || 'Invalid email or password. Please try again.');
-      recaptchaRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -159,14 +149,6 @@ export default function LoginPage() {
                 <Link href="/forgot-password" className={styles.forgot}>
                   Forgot password?
                 </Link>
-              </div>
-
-              <div className={styles.captcha}>
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-                  theme="light"
-                />
               </div>
 
               <button type="submit" className={styles.submitBtn} disabled={loading}>

@@ -19,12 +19,7 @@ api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('adminAccessToken');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    // Support for CAPTCHA header
-    if (config.captchaToken) {
-      config.headers['X-Captcha-Token'] = config.captchaToken;
+      headers['Authorization'] = `Bearer ${token}`;
     }
   }
   return config;

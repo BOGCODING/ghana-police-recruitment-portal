@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import styles from './login.module.css';
 
 export default function AdminLogin() {
-  const recaptchaRef = useRef(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -34,18 +32,10 @@ export default function AdminLogin() {
         localStorage.removeItem('rememberedAdminEmail');
       }
 
-      const captchaToken = recaptchaRef.current?.getValue();
-      if (!captchaToken && process.env.NODE_ENV === 'production') {
-        setError('Please complete the CAPTCHA verification');
-        setLoading(false);
-        return;
-      }
-
-      await login(email, password, captchaToken);
+      await login(email, password);
       router.push('/dashboard');
     } catch (err) {
       setError(err.message || 'Invalid credentials. Please try again.');
-      recaptchaRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -98,13 +88,7 @@ export default function AdminLogin() {
             </label>
           </div>
 
-          <div className={styles.captcha}>
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-              theme="light"
-            />
-          </div>
+
 
           <button type="submit" className={styles.btn} disabled={loading}>
             {loading ? 'Signing in...' : 'Sign In'}

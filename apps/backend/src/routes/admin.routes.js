@@ -20,12 +20,10 @@ const {
 } = require('../validators/admin.validator');
 
 const { authLimiter } = require('../middleware/rateLimiter.middleware');
-const { validateCaptcha } = require('../middleware/captcha.middleware');
 
 // Admin Login (public)
 router.post('/login',
   authLimiter,
-  validateCaptcha,
   validateBody(adminLoginSchema),
   adminController.login
 );

@@ -38,10 +38,6 @@ services:
         value: "1"
       - key: NODE_OPTIONS
         value: "--max-old-space-size=450"
-      - key: CAPTCHA_SECRET
-        sync: false
-      - key: CAPTCHA_BYPASS_KEY
-        sync: false
       - key: EMAIL_HOST
         sync: false
       - key: EMAIL_PORT
@@ -85,8 +81,8 @@ services:
         value: "--max-old-space-size=450"
       - key: PORT
         value: "10000"
-      - key: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-        sync: false
+      - key: PORT
+        value: "10000"
 
   # ---------------------------------------------------------------------------
   # 3. Admin Dashboard (Next.js)
@@ -118,5 +114,5 @@ services:
         value: "--max-old-space-size=450"
       - key: PORT
         value: "10000"
-      - key: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-        sync: false
+      - key: PORT
+        value: "10000"

@@ -1,5 +1,4 @@
-'use client';
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { api } from '../utils/api';
 
@@ -89,11 +88,10 @@ export function AuthProvider({ children }) {
     }
   }, [pathname]);
 
-  const login = async (email, password, captchaToken) => {
+  const login = async (email, password) => {
     const data = await api('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
-      captchaToken
+      body: JSON.stringify({ email, password })
     });
 
     // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback
@@ -108,12 +106,11 @@ export function AuthProvider({ children }) {
     return data.data;
   };
 
-  const register = async (formData, captchaToken) => {
+  const register = async (formData) => {
     try {
       const data = await api('/api/auth/register', {
         method: 'POST',
-        body: JSON.stringify(formData),
-        captchaToken
+        body: JSON.stringify(formData)
       });
 
       // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback

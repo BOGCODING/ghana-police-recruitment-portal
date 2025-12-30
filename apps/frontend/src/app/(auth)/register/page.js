@@ -1,14 +1,12 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/utils/api';
 import styles from './styles.module.css';
 
 export default function RegisterPage() {
-  const recaptchaRef = useRef(null);
   const [formData, setFormData] = useState({
     serialNumber: '',
     pinCode: '',
@@ -87,19 +85,11 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const captchaToken = recaptchaRef.current?.getValue();
-      if (!captchaToken && process.env.NODE_ENV === 'production') {
-        setError('Please complete the CAPTCHA verification');
-        setLoading(false);
-        return;
-      }
-
-      await register(formData, captchaToken);
+      await register(formData);
       sessionStorage.removeItem('voucherData');
       router.push('/dashboard');
     } catch (err) {
       setError(err.message);
-      recaptchaRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -196,14 +186,6 @@ export default function RegisterPage() {
                   {passwordsMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
                 </div>
               )}
-            </div>
-
-            <div className={styles.captcha}>
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-                theme="light"
-              />
             </div>
 
             <button type="submit" className={styles.submitBtn} disabled={loading || passwordErrors.length > 0 || !passwordsMatch}>

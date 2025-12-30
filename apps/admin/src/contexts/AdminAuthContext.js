@@ -42,8 +42,8 @@ export function AdminAuthProvider({ children }) {
     fetchAdmin();
   }, [fetchAdmin]);
 
-  const login = async (email, password, captchaToken) => {
-    const { data } = await api.post('/admin/login', { email, password }, { captchaToken });
+  const login = async (email, password) => {
+    const { data } = await api.post('/admin/login', { email, password });
 
     // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback
     if (typeof window !== 'undefined' && data.data?.accessToken) {
