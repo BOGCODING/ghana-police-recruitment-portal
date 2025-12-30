@@ -1,10 +1,11 @@
-'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { api } from '@/utils/api';
 import styles from './styles.module.css';
 
 export default function ForgotPasswordPage() {
+  const recaptchaRef = useRef(null);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -17,9 +18,17 @@ export default function ForgotPasswordPage() {
     setMessage('');
 
     try {
+      const captchaToken = recaptchaRef.current?.getValue();
+      if (!captchaToken && process.env.NODE_ENV === 'production') {
+        setError('Please complete the CAPTCHA verification');
+        setLoading(false);
+        return;
+      }
+
       const data = await api('/api/auth/forgot-password', {
         method: 'POST',
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
+        captchaToken
       });
 
       setMessage(data.message || 'If this email exists, a reset link has been sent.');
@@ -54,6 +63,14 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your.email@example.com"
                 required
+              />
+            </div>
+
+            <div className={styles.captcha}>
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                theme="light"
               />
             </div>
 

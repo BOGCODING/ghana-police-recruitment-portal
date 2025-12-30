@@ -89,10 +89,11 @@ export function AuthProvider({ children }) {
     }
   }, [pathname]);
 
-  const login = async (email, password) => {
+  const login = async (email, password, captchaToken) => {
     const data = await api('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
+      captchaToken
     });
 
     // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback
@@ -107,11 +108,12 @@ export function AuthProvider({ children }) {
     return data.data;
   };
 
-  const register = async (formData) => {
+  const register = async (formData, captchaToken) => {
     try {
       const data = await api('/api/auth/register', {
         method: 'POST',
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        captchaToken
       });
 
       // Backend sets HttpOnly cookies, but we also store in localStorage for Header fallback

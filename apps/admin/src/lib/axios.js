@@ -21,6 +21,11 @@ api.interceptors.request.use((config) => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Support for CAPTCHA header
+    if (config.captchaToken) {
+      config.headers['X-Captcha-Token'] = config.captchaToken;
+    }
   }
   return config;
 });

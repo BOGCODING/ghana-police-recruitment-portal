@@ -241,6 +241,10 @@
   text-decoration: underline;
 }
 
+.captcha {
+  margin-bottom: 1.5rem;
+}
+
 .submitBtn {
   padding: 1rem;
   background: linear-gradient(135deg, #006B3F 0%, #004D2C 100%);

@@ -102,6 +102,12 @@
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
+.captcha {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
 .submitBtn {
   margin-top: 1rem;
   padding: 0.875rem;

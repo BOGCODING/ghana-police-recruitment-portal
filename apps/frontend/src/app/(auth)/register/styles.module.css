@@ -188,6 +188,12 @@
   margin-top: 0.5rem;
 }
 
+.captcha {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
 .submitBtn {
   padding: 1rem;
   background: linear-gradient(135deg, #006B3F 0%, #004D2C 100%);

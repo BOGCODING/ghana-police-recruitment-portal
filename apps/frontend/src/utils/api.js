@@ -25,6 +25,7 @@ const NO_REFRESH_ENDPOINTS = [
 export const api = async (endpoint, options = {}) => {
   const headers = {
     'Content-Type': 'application/json',
+    ...(options.captchaToken && { 'X-Captcha-Token': options.captchaToken }),
     ...options.headers,
   };
 

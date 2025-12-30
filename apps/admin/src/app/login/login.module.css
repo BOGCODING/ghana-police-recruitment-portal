@@ -109,6 +109,12 @@
   text-align: center;
 }
 
+.captcha {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
 .footer {
   margin-top: 2rem;
   text-align: center;
