@@ -61,7 +61,7 @@ export function ApplicationProvider({ children }) {
       const data = await api('/api/applications/current');
       if (data.success && data.data) {
         const appData = data.data;
-        setApplicationId(appData.id);
+        setApplicationId(appData.applicationId);  // Use formatted Application ID (GPS-YYYY-XXXXXX), not numeric id
         setCurrentStep(appData.currentStep || 1);
         setStatus(appData.status);
         

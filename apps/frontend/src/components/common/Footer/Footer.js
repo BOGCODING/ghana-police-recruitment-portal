@@ -32,7 +32,7 @@ export default function Footer() {
             <h4>Support</h4>
             <Link href="/contact">Contact Support</Link>
             <Link href="/voucher/purchase">Buy Recruitment Voucher</Link>
-            <a href="https://home.police.gov.gh" target="_blank" rel="noopener noreferrer" className={styles.extLink}>
+            <a href="https://boglogodwin10@gmail.com" target="_blank" rel="noopener noreferrer" className={styles.extLink}>
               GPS Official Website <FiExternalLink size={14} />
             </a>
           </div>

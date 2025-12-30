@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { api } from '../../utils/api';
@@ -30,6 +31,7 @@ const staggerContainer = {
 
 
 export default function HomePage() {
+  const router = useRouter();
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, 150]);
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
@@ -51,7 +53,6 @@ export default function HomePage() {
   ];
 
   const [trackId, setTrackId] = useState('');
-  const [trackResult, setTrackResult] = useState(null);
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState('');
 
@@ -61,11 +62,14 @@ export default function HomePage() {
 
     setTrackLoading(true);
     setTrackError('');
-    setTrackResult(null);
 
     try {
       const data = await api(`/api/applications/track/${trackId.trim()}`);
-      setTrackResult(data.data);
+      if (data.data) {
+        // Store the tracked application ID and redirect to dashboard
+        sessionStorage.setItem('trackedApplicationId', trackId.trim().toUpperCase());
+        router.push('/dashboard');
+      }
     } catch (err) {
       setTrackError(err.message || 'Application not found');
     } finally {
@@ -239,24 +243,6 @@ export default function HomePage() {
               >
                 {typeof trackError === 'string' ? trackError : 'An error occurred'}
               </motion.p>
-            )}
-            
-            {trackResult && (
-              <motion.div 
-                className={styles.trackResult}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-              >
-                <div className={styles.resultHeader}>
-                  <h4>Status for {String(trackResult.applicantName || 'Applicant')}</h4>
-                  <span className={`${styles.statusBadge} ${styles[(String(trackResult.status || '')).toLowerCase()]}`}>
-                    {String(trackResult.status || '')}
-                  </span>
-                </div>
-                <p className={styles.resultDate}>
-                  Submitted on: {trackResult.submittedAt ? new Date(trackResult.submittedAt).toLocaleDateString() : 'N/A'}
-                </p>
-              </motion.div>
             )}
           </motion.div>
         </div>

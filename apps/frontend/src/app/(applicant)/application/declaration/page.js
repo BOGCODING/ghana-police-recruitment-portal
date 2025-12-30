@@ -77,7 +77,7 @@ export default function DeclarationPage() {
         <h1 className={styles.successTitle}>Application Submitted!</h1>
         <p className={styles.successText}>Your application has been received and is under review.</p>
         <div className={styles.appIdBox}>
-          <span>Application Number</span>
+          <span>Application ID</span>
           <div className={styles.appIdValue}>{appId}</div>
         </div>
         <p className={styles.note}>
