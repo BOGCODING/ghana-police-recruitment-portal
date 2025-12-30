@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "node ../../scripts/build-app.js frontend",
-    "start": "HOSTNAME=0.0.0.0 node .next/standalone/apps/frontend/server.js",
+    "start": "HOSTNAME=0.0.0.0 node .next/standalone/server.js",
     "lint": "next lint"
   },
   "dependencies": {
