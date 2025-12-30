@@ -377,15 +377,16 @@ const deactivateVoucher = async (req, res) => {
   try {
     const { code } = req.params;
     
+    // Only set deactivatedAt/deactivatedBy, NOT isUsed - they are semantically different
     const result = await query(
-      `UPDATE vouchers SET "isUsed" = true, "deactivatedAt" = NOW(), "deactivatedBy" = $1
-       WHERE code = $2 AND "isUsed" = false
+      `UPDATE vouchers SET "deactivatedAt" = NOW(), "deactivatedBy" = $1
+       WHERE code = $2 AND "isUsed" = false AND "deactivatedAt" IS NULL
        RETURNING *`,
       [req.admin.id, code.toUpperCase()]
     );
     
     if (result.rows.length === 0) {
-      return errorResponse(res, 'Voucher not found or already used', 404);
+      return errorResponse(res, 'Voucher not found, already used, or already deactivated', 404);
     }
     
     return successResponse(res, result.rows[0], 'Voucher deactivated');
