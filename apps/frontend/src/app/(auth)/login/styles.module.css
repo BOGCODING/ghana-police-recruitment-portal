@@ -340,16 +340,28 @@
   
   .leftPanel {
     flex: none;
-    min-height: 300px;
-    padding: 2.5rem;
+    min-height: 200px; /* Reduced height to save space */
+    padding: 2rem;
   }
   
   .brand {
-    margin-bottom: 2rem;
+    margin-bottom: 0;
+    text-align: center;
+  }
+
+  .logo {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: inline-block;
   }
   
   .brand h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+
+  .brand p {
+    font-size: 1rem;
+    display: none; /* Hide subtitle on mobile to save space */
   }
   
   .features {
@@ -358,7 +370,27 @@
 
   .rightPanel {
     flex: 1;
-    padding: 2.5rem 1.5rem;
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .rightPanel {
+    padding: 1.5rem 1rem;
+  }
+
+  .formContainer h2 {
+    font-size: 1.75rem;
+  }
+
+  .field input {
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 0.75rem;
+  }
+  
+  .logo {
+    width: 80px;
+    height: 80px;
   }
 }
 

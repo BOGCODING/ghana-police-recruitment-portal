@@ -243,3 +243,38 @@
   align-items: center;
   gap: 0.5rem;
 }
+@media (max-width: 640px) {
+  .main {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .card {
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .header {
+    padding: 1rem;
+  }
+  
+  .content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .content h1 {
+    font-size: 1.25rem;
+  }
+
+  .voucherInput {
+    font-size: 1.1rem !important;
+    letter-spacing: 1px;
+    padding: 0.75rem !important;
+  }
+
+  .field input {
+    font-size: 16px; /* iOS zoom prevention */
+    padding: 0.75rem;
+  }
+}

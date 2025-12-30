@@ -332,6 +332,18 @@
   .linksGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media (max-width: 480px) {
+  .linksGrid { grid-template-columns: 1fr; }
+  
+  .headerLeft h1 {
+    font-size: 1.1rem;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+}
+
 /* Alert Styles */
 .alert {
   padding: 1.5rem;

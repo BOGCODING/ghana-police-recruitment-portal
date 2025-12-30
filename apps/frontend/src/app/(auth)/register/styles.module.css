@@ -210,3 +210,48 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+@media (max-width: 640px) {
+  .main {
+    padding: 1rem;
+    align-items: flex-start; /* prevent centering if content is long */
+    padding-top: 2rem;
+  }
+
+  .card {
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .content h1 {
+    font-size: 1.25rem;
+  }
+
+  .credentials {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .credValue {
+    font-size: 1rem;
+  }
+
+  .field input {
+    font-size: 16px; /* iOS zoom prevention */
+    padding: 0.75rem;
+  }
+
+  .passwordRequirements {
+    grid-template-columns: 1fr;
+  }
+}
