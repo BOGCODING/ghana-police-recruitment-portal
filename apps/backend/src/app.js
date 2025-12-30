@@ -33,6 +33,18 @@ app.use(apiLimiter);
 app.use(sanitize);
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
+
+// Restrict batching (No Array bodies)
+app.use((req, res, next) => {
+  if (Array.isArray(req.body)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Batching is not allowed (JSON Array bodies are disabled)'
+    });
+  }
+  next();
+});
+
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 

@@ -50,7 +50,7 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN}
       - UPLOAD_PATH=./uploads
     volumes:
-      - uploads_data:/app/apps/backend/uploads
+      - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy

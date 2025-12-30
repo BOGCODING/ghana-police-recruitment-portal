@@ -29,14 +29,14 @@ const generateVoucherCode = () => {
 
 /**
  * Generate a serial number for applicants
- * Format: YYYYMMDD-XXXXX
+ * Format: YYYYMMDD-XXXXXXX
  */
 const generateSerialNumber = () => {
   const year = new Date().getFullYear();
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Safe alphanumeric
   let random = '';
   
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 7; i++) {
     random += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   

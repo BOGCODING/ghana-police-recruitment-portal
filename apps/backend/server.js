@@ -76,4 +76,29 @@ process.on('SIGTERM', () => {
   });
 });
 
-startServer();
+const cluster = require('cluster');
+const os = require('os');
+const numCPUs = os.cpus().length;
+
+// If we are the primary process, fork workers
+if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
+  logger.info(`Primary ${process.pid} is running`);
+  logger.info(`Forking ${numCPUs} workers for high concurrency...`);
+
+  // Fork workers.
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  // Handle worker exit
+  cluster.on('exit', (worker, code, signal) => {
+    logger.warn(`Worker ${worker.process.pid} died (code: ${code}, signal: ${signal}). Restarting...`);
+    cluster.fork();
+  });
+
+} else {
+  // Workers can share any TCP connection
+  // In this case it is an HTTP server
+  startServer();
+  logger.info(`Worker ${process.pid} started`);
+}
