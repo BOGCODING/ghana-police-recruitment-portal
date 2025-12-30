@@ -59,6 +59,12 @@
   border-color: #10B981;
 }
 
+@media (max-width: 1024px) {
+  .toggleBtn {
+    display: none;
+  }
+}
+
 .logoIcon {
   display: block;
   object-fit: contain;
