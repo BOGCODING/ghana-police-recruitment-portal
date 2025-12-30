@@ -77,8 +77,8 @@ process.on('SIGTERM', () => {
 });
 
 const cluster = require('cluster');
-const os = require('os');
-const numCPUs = os.cpus().length;
+
+const numCPUs = process.env.WEB_CONCURRENCY || 1; // Default to 1 for safety on free tier
 
 // If we are the primary process, fork workers
 if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
