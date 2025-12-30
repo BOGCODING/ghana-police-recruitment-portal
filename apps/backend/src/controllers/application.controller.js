@@ -887,6 +887,16 @@ const getApplicationHistory = async (req, res) => {
 const trackApplication = async (req, res) => {
   try {
     const { applicationId } = req.params;
+    const cacheKey = `app:track:${applicationId}`;
+
+    // Try to get from cache first
+    const cachedData = await cacheGet(cacheKey);
+    if (cachedData) {
+      if (cachedData.notFound) {
+        return errorResponse(res, 'Application not found. Please check your Application ID.', 404);
+      }
+      return successResponse(res, cachedData);
+    }
     
     const result = await query(
       `SELECT app."applicationId", app.status, app."submittedAt", 
@@ -898,17 +908,25 @@ const trackApplication = async (req, res) => {
     );
     
     if (result.rows.length === 0) {
+      // Create a cache entry for non-existent application to prevent cache penetration
+      // Short TTL of 30 seconds for specific errors
+      await cacheSet(cacheKey, { notFound: true }, 30);
       return errorResponse(res, 'Application not found. Please check your Application ID.', 404);
     }
     
     const app = result.rows[0];
     
-    return successResponse(res, {
+    const responseData = {
       applicationId: app.applicationId,
       status: app.status,
       submittedAt: app.submittedAt,
       applicantName: `${app.firstName} ${app.middleName ? app.middleName + ' ' : ''}${app.lastName}`.trim(),
-    });
+    };
+    
+    // Cache the result for 60 seconds
+    await cacheSet(cacheKey, responseData, 60);
+    
+    return successResponse(res, responseData);
     
   } catch (error) {
     logger.error('Track application error:', error);
