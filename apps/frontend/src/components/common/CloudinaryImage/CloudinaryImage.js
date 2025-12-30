@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { auto } from '@cloudinary/url-gen/actions/resize';
 import { AdvancedImage, placeholder, lazyload } from '@cloudinary/react';
@@ -49,17 +50,43 @@ const CloudinaryImage = ({
 
   // CASE A: It's a regular URL (local upload or external) OR we don't have cloud config
   if (isUrl || !hasCloudConfig) {
+    // Check if we have dimensions to use next/image
+    if (width && height) {
+       const isStatic = src.startsWith('blob:') || src.startsWith('data:');
+       
+       return (
+        <Image 
+          src={src} 
+          alt={alt} 
+          width={width} 
+          height={height}
+          className={`${styles.image} ${className}`}
+          priority={priority}
+          style={style}
+          unoptimized={isStatic} // Skip optimization for blob/data URLs
+          {...props}
+        />
+      );
+    }
+    
+    // Use next/image with fill when no explicit dimensions (requires positioned container)
+    const isStatic = src.startsWith('blob:') || src.startsWith('data:');
     return (
-      <img 
-        src={src} 
-        alt={alt} 
-        width={width} 
-        height={height}
-        className={`${styles.image} ${className}`}
-        loading={priority ? 'eager' : 'lazy'}
-        style={style}
-        {...props}
-      />
+      <div 
+        className={`${styles.fillWrapper} ${className}`} 
+        style={{ position: 'relative', width: '100%', height: '100%', ...style }}
+      >
+        <Image 
+          src={src} 
+          alt={alt} 
+          fill
+          className={styles.fillImage}
+          priority={priority}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          unoptimized={isStatic}
+          {...props}
+        />
+      </div>
     );
   }
 

@@ -21,3 +21,13 @@
   background-color: #f0f0f0;
   display: block;
 }
+
+.fillWrapper {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.fillImage {
+  object-fit: cover;
+}
