@@ -194,16 +194,21 @@ const VoucherService = {
 
       const voucher = await Voucher.create(voucherData);
 
-      // If email provided, send credentials
+      // If email provided, send credentials (non-blocking)
       if (data.email) {
-        // Use lazy require to avoid circular dependencies if any
-        const { sendVoucherCredentials } = require('./email.service');
-        await sendVoucherCredentials(data.email, {
-          serialNumber: voucherData.serialNumber,
-          pinCode: voucherData.pinCode,
-          expiresAt
-        });
-        logger.info(`Voucher credentials sent to ${data.email}`);
+        try {
+          // Use lazy require to avoid circular dependencies if any
+          const { sendVoucherCredentials } = require('./email.service');
+          await sendVoucherCredentials(data.email, {
+            serialNumber: voucherData.serialNumber,
+            pinCode: voucherData.pinCode,
+            expiresAt
+          });
+          logger.info(`Voucher credentials sent to ${data.email}`);
+        } catch (emailError) {
+          // Log error but don't fail the voucher generation
+          logger.warn(`Failed to send voucher email to ${data.email}: ${emailError.message}`);
+        }
       }
 
       return voucher;

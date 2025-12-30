@@ -9,8 +9,24 @@ const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const { user, refetch } = useAuth();
   const [socket, setSocket] = useState(null);
-  const WS_URL = (process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/['"`]/g, '').replace(/\/+$/, '') || (typeof window !== 'undefined' ? window.location.origin : '');
+  
+  // Determine WS_URL with safe fallbacks
+  const getWsUrl = () => {
+    // 1. Explicit env var
+    if (process.env.NEXT_PUBLIC_WS_URL) return process.env.NEXT_PUBLIC_WS_URL;
+    if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+    
+    // 2. Localhost fallback
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:5000';
+    }
 
+    // 3. Fallback to origin
+    return typeof window !== 'undefined' ? window.location.origin : '';
+  };
+
+  const WS_URL = getWsUrl().trim().replace(/['"`]/g, '').replace(/\/+$/, '');
+  
   const socketRef = useRef(null);
 
   useEffect(() => {
