@@ -16,6 +16,18 @@ const createTransporter = () => {
     });
   }
 
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    logger.error('CRITICAL: Production email credentials missing! Set EMAIL_HOST, EMAIL_USER, and EMAIL_PASS.');
+    // Return a dummy transporter that just logs to console to prevent crashes
+    return {
+      sendMail: async (mailOptions) => {
+        logger.warn('SMTP NOT CONFIGURED: Logging email to console as fallback.');
+        logger.info(`[Fallback Email] To: ${mailOptions.to}, Subject: ${mailOptions.subject}`);
+        return { messageId: 'dummy-id-' + Date.now() };
+      }
+    };
+  }
+
   return nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: parseInt(process.env.EMAIL_PORT) || 587,
