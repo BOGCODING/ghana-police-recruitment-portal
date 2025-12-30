@@ -38,6 +38,16 @@ class BaseDTO {
     });
     return cleaned;
   }
+
+  /**
+   * Clean and normalize email address
+   * @param {string} email - Email address
+   * @returns {string|null} Cleaned email or null
+   */
+  static cleanEmail(email) {
+    if (!email) return null;
+    return String(email).trim().toLowerCase();
+  }
 }
 
 module.exports = BaseDTO;

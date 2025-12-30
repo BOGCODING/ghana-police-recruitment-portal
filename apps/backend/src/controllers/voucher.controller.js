@@ -59,7 +59,7 @@ const generateVoucher = async (req, res) => {
     
     return successResponse(res, VoucherDTO.toVoucherResponse(voucher), 'Voucher generated', 201);
   } catch (error) {
-    logger.error('Generate voucher error:', error.message);
+    logger.error('Generate voucher error:', error);
     return errorResponse(res, 'Failed to generate voucher', 500);
   }
 };
