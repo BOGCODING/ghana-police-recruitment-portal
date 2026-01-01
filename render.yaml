@@ -109,6 +109,6 @@ services:
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
       - key: NODE_OPTIONS
-        value: "--max-old-space-size=350"
+        value: "--max-old-space-size=300"
       - key: PORT
         value: "10000"
