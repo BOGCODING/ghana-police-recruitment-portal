@@ -56,7 +56,7 @@ curl -X POST http://localhost:5000/api/admin/init-super-admin
 
 Login credentials:
 - Email: `boneforgames@gmail.com`
-- Password: `Bone@123`
+- Password: ``
 
 ## 📋 Features
 
